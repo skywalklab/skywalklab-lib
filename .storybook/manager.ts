@@ -9,7 +9,7 @@ import { BRAND_LAB } from "../src/lib/brand/data.js";
 addons.setConfig({
   showNav: true,
   layoutCustomisations: {
-    showPanel: ({ path }) => true,
+    showPanel: ({ path }) => !path.startsWith("/docs/"),
     showToolbar: ({ path }) => true
   }
 });

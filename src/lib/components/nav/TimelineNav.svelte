@@ -33,10 +33,7 @@
   {style}>
   <ul class="timeline-nav--list">
     {#each items as item, i (i)}
-      <li
-        class="timeline-nav--list-item"
-        class:active={i <= activeItemIndex}
-        class:active-latest={i === activeItemIndex}>
+      <li class="timeline-nav--list-item" class:active={i <= activeItemIndex} class:active-now={i === activeItemIndex}>
         <button
           class="timeline-nav--button"
           onclick={() => {

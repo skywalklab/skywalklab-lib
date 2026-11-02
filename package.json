@@ -9,7 +9,7 @@
   },
   "bugs": "https://github.com/skywalklab/skywalklab-lib/issues",
   "license": "MIT",
-  "version": "0.8.509",
+  "version": "0.8.511",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
@@ -180,6 +180,10 @@
     "./stories": {
       "types": "./dist/stories/index.d.ts",
       "default": "./dist/stories/index.js"
+    },
+    "./stories/mdx": {
+      "types": "./dist/stories/mdx/index.d.ts",
+      "default": "./dist/stories/mdx/index.js"
     },
     "./css-modules": {
       "types": "./dist/css-modules/index.d.ts",
