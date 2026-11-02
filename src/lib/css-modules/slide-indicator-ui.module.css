@@ -1,0 +1,35 @@
+/**
+ * slide_indicator_ui (.slide-indicator-ui)
+ *
+ * .slide  Holds the underline open without hover or focus, e.g. to mark the current page.
+ *
+ * --slide-indicator-ui-color  Color of the underline revealed on hover, focus and active. (currentColor)
+ */
+
+.slide-indicator-ui {
+  display: block;
+
+  &::after {
+    display: block;
+    content: "";
+    border-bottom: 2px solid var(--slide-indicator-ui-color, currentColor);
+    transition: all 0.3s linear;
+    transform-origin: 0% 50%;
+    transform: scaleX(0);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: all 0.75s linear;
+    }
+  }
+
+  &:hover::after,
+  &:focus-visible::after,
+  &.slide::after {
+    transform: scaleX(1);
+  }
+
+  &:active::after {
+    transform: scaleX(0.9);
+    transition: none;
+  }
+}

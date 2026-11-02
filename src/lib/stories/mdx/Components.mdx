@@ -1,0 +1,136 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { defaultLabels } from "$lib/utils/labels.js";
+
+export const labelRows = Object.entries(defaultLabels).map(([key, value]) => {
+  if (typeof value !== "function") return [key, value];
+  const params = value.toString().match(/^\(?([^)=]*)\)?\s*=>/)[1].split(",").map((p) => `{${p.trim()}}`);
+  return [key, value(...params)];
+});
+
+<div class='mdx-file'></div>
+<Meta title='Component Integration/Components (Svelte)' />
+
+# Components
+
+103 components across 23 categories, for use in a Svelte or SvelteKit project. To use them in plain
+HTML instead, see [Custom Elements](?path=/docs/component-integration-custom-elements--docs).
+
+Every component's own page in the sidebar has its props table and a live control panel. This page
+covers what they all have in common: how to import them, style them and pass them content.
+
+## Importing
+
+Import from a directory rather than the package root, so only that directory's components are
+pulled in:
+
+```ts
+import { TopImageCard } from "@skywalklab/lib/components/cards";
+import { Header1 } from "@skywalklab/lib/components/nav";
+```
+
+`@skywalklab/lib/components` exports everything, which is convenient and costs more to bundle. Each
+of the 23 directories is its own export path: `animations`, `banners`, `brand`, `buttons`, `cards`,
+`carousels`, `chatbots`, `diagrams`, `disclosure`, `frames`, `galleries`, `headings`, `heros`,
+`icons`, `legal`, `lists`, `modals`, `nav`, `panels`, `patterns`, `search`, `seo`, `utilities`.
+
+## Props
+
+Every component is fully typed, and the props table on its page is generated from that type — the
+description beside each prop is the doc comment from the source, so the two cannot drift apart.
+
+Nearly every component also takes `style`, applied to its root element. It is the intended escape
+hatch for one-off layout — width, margin, a `display` change — without reaching into the
+component's classes:
+
+```svelte
+<TopImageCard title="A title" style="max-width: 20rem;" />
+```
+
+## Styling
+
+### Base styles
+
+The components are built on `preflight.css`, which removes default browser styles. Import it once:
+
+```ts
+import "@skywalklab/lib/styles/preflight.css";
+```
+
+### CSS variables
+
+Components read their colors and spacing from CSS variables, each with a fallback, so they look
+reasonable before you theme anything:
+
+```css
+background-color: var(--background, white);
+color: var(--primary, black);
+```
+
+Set them on `:root` or any ancestor and everything below picks them up. Nothing has to be defined.
+
+### CSS modules
+
+Some components take a class name as a prop rather than styling a sub-element themselves, which lets
+one component serve several visual variants — a button style, a hamburger animation. See
+[CSS Modules](?path=/docs/component-integration-css-modules--docs).
+
+## Snippets
+
+Content a component renders is passed as a snippet, not a slot. The common case is `children`:
+
+```svelte
+<TopImageCard title="A title" text="Some copy.">
+  <img src="/logo.svg" alt="" width="60" height="96" />
+</TopImageCard>
+```
+
+A component that renders a list takes a snippet per item and calls it with that item:
+
+```svelte
+<LoadMoreList {items} limit={3} {loadItems}>
+  {#snippet itemSnippet({ item, index })}
+    <TopImageCard title={item.title} text={item.text} />
+  {/snippet}
+</LoadMoreList>
+```
+
+The props table names each snippet's arguments. A snippet that takes arguments is the one case that
+has no equivalent outside Svelte — the custom element renders it as a `data-*` template instead.
+
+## Accessible labels
+
+Labels the library writes itself, such as a carousel's arrow buttons or a modal's close button, are
+English by default. Replace any of them once in your root layout, and every component below picks
+them up. Keys you leave out stay English:
+
+```svelte
+<script>
+  import { setLibraryLabels } from "@skywalklab/lib/utils";
+
+  setLibraryLabels({
+    close: "Fermer",
+    previousSlide: "Diapositive précédente",
+    showSlide: (n) => `Afficher la diapositive ${n}`
+  });
+</script>
+```
+
+Labels with a value in braces are functions that receive it. `LibraryLabels` types the whole object.
+They do not reach custom elements, which always use English.
+
+<table>
+  <thead>
+    <tr><th>Key</th><th>Default</th></tr>
+  </thead>
+  <tbody>
+    {labelRows.map(([key, value]) => (
+      <tr key={key}><td><code>{key}</code></td><td>{value}</td></tr>
+    ))}
+  </tbody>
+</table>
+
+## Server-rendered pages
+
+Every component renders on the server, so nothing needs a `browser` guard or a client-only wrapper.
+An animated one renders its finished state in the HTML and starts animating once the page hydrates,
+which means it is visible and readable with JavaScript still loading.

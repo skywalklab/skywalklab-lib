@@ -1,0 +1,10 @@
+:root {
+  --landing-header-height: 86px;
+  --header-height: 56px;
+  --dynamic-header-height: var(--header-height);
+  --box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.025), 0 1px 1px 0 rgba(0, 0, 0, 0.01), 0 0 50px 0 rgba(0, 0, 0, 0.07);
+  --slide-timing-function: cubic-bezier(0, 0, 0.58, 1);
+  --inline-padding: clamp(1px, 5vw, 3rem);
+  --max-page-width: 1200px;
+  --side-padding: clamp(6px, 4vw, 18px);
+}

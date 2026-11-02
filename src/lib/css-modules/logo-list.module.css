@@ -1,0 +1,233 @@
+/**
+ * logo_list (.logo-list)
+ *   Wrap each li's content in an element; bare text never matches :first-child, which carries the row
+ *   padding, the marker arrow and the hover fill. See LogoList.svelte.
+ *
+ * --logo-list-marker-bg-color         Marker background at the top level.                     (var(--primary), black)
+ * --logo-list-nested-marker-bg-color  Marker background for nested lists.                     (var(--accent-dark), grey)
+ * --logo-list-outline-marker-color    Marker border and arrow color in outline mode.          (var(--primary), black)
+ * --logo-list-marker-image            Glyph shown in ul markers.                              (brand-logo.svg)
+ * --logo-list-marker-size             Width and height of that glyph.                         (20px)
+ * --logo-list-marker-min-height       Minimum height of a row and its marker.                 (32px)
+ * --logo-list-gap                     Gap between the marker and the item content.            (0.25rem)
+ * --logo-list-arrow-scale             Arrow scale in outline mode; also feeds the min height.  (1)
+ *
+ * Modifiers:
+ * ul.logo-list              Markers show --logo-list-marker-image.
+ * ol.logo-list              Markers show an incrementing counter.
+ * .outline-markers          Outline every marker in this list.
+ * li.outline-marker         Outline a single marker.
+ * li.active-hover           Fill the row and marker on hover and focus.
+ */
+
+.logo-list {
+  --logo-list-outline-marker-color: var(--primary, black);
+  list-style: none;
+  margin: 1.5rem 0;
+  padding: 0 0 0 2vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  @media (min-width: 768px) {
+    padding: 0 0 0 2rem;
+  }
+
+  > li {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: var(--logo-list-gap, 0.25rem);
+    min-height: var(--logo-list-marker-min-height, 32px);
+    padding: 0;
+    overflow: hidden;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    transition: all 0.2s linear;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: all 0.75s linear;
+    }
+
+    &.active-hover:hover:not(:has(.logo-list)),
+    &.active-hover:focus-visible:not(:has(.logo-list)) {
+      background-color: var(--logo-list-marker-bg-color, var(--primary, black));
+
+      > :first-child {
+        color: #ffffff;
+      }
+    }
+
+    &.active-hover:hover:has(.logo-list),
+    &.active-hover:focus-visible:has(.logo-list) {
+      &::before {
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+      }
+
+      > :first-child {
+        background-color: var(--logo-list-marker-bg-color, var(--primary, black));
+        color: #ffffff;
+      }
+    }
+
+    &.active-hover:hover > :first-child {
+      &::before,
+      &::after {
+        left: -1.5rem;
+        z-index: 0;
+      }
+    }
+
+    > :first-child {
+      background: none;
+      border: none;
+      margin: 0;
+      outline: none;
+      font: inherit;
+      color: inherit;
+      text-decoration: none;
+      box-shadow: none;
+      appearance: none;
+      text-align: start;
+      padding: 4px 8px 4px 16px;
+      flex: 1 1 auto;
+      max-width: calc(100% - var(--logo-list-marker-size, 20px) - 1.25rem);
+      border-radius: 3px;
+      position: relative;
+      transition: inherit;
+      align-content: center;
+    }
+
+    .logo-list {
+      flex: 0 0 100%;
+      margin: 1rem 0;
+      padding: 0 0 0 3vw;
+      max-width: calc(100% - var(--logo-list-marker-size, 20px) - 0.25rem);
+
+      @media (min-width: 768px) {
+        padding: 0 0 0 1.5rem;
+      }
+
+      > li {
+        --logo-list-marker-bg-color: var(--logo-list-nested-marker-bg-color, var(--accent-dark, slategray));
+
+        > :first-child {
+          max-width: calc(100% - var(--logo-list-marker-size, 20px) - 1.25rem - 2px);
+        }
+      }
+    }
+  }
+}
+
+/** Marker */
+.logo-list > li::before {
+  flex: 0 0 calc(16px + var(--logo-list-marker-size, 20px));
+  content: "";
+  border-radius: 3px;
+  min-height: var(--logo-list-marker-min-height, 32px);
+  color: #ffffff;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.logo-list > li ul.logo-list li::before {
+  flex: 0 0 calc(4px + var(--logo-list-marker-size, 20px));
+}
+
+.logo-list > li > :first-child::before,
+.logo-list > li > :first-child::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  width: calc(var(--logo-list-marker-min-height, 32px) / 2.5);
+  height: 100%;
+  max-height: 32px;
+  left: calc(var(--logo-list-gap, 0.25rem) * -1 - 1px);
+  background: var(--logo-list-marker-bg-color, var(--primary, black));
+  clip-path: polygon(100% 50%, 0% 0%, 0% 100%, 0% 100%);
+  transition:
+    clip-path 0.1s linear,
+    border 0.3s ease,
+    left 0.3s ease,
+    right 0.3s ease,
+    z-index 0.3s ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: all 0.5s linear;
+  }
+}
+
+.logo-list.outline-markers > li,
+.logo-list > li.outline-marker {
+  --logo-list-marker-min-height: calc(32px * var(--logo-list-arrow-scale, 1) + 2px);
+
+  &::before {
+    border: 1px solid var(--logo-list-outline-marker-color);
+    transition: border 0.3s linear;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: border 0.5s linear;
+    }
+  }
+
+  > :first-child::before {
+    max-height: unset;
+    left: calc(var(--logo-list-gap, 0.25rem) * -1 - 2px);
+  }
+
+  > :first-child::after {
+    max-height: unset;
+    z-index: 0;
+    transform: scale(var(--logo-list-arrow-scale, 1));
+    background-color: var(--logo-list-outline-marker-color);
+  }
+
+  &.active-hover:hover {
+    &::before {
+      border-color: transparent;
+    }
+  }
+
+  &.active-hover:hover:not(:has(.logo-list)),
+  &.active-hover:focus-visible:not(:has(.logo-list)) {
+    border-color: var(--logo-list-outline-marker-color);
+  }
+}
+
+/** Unordered Marker */
+ul.logo-list > li::before {
+  background:
+    var(--logo-list-marker-image, url("https://skywalklab.com/brand/brand-logo.svg")) no-repeat center /
+      var(--logo-list-marker-size, 20px) var(--logo-list-marker-size, 20px),
+    var(--logo-list-marker-bg-color, var(--primary, black));
+}
+
+ul.logo-list > li .logo-list > li::before {
+  background:
+    var(--logo-list-marker-image, url("https://skywalklab.com/brand/brand-logo.svg")) no-repeat center /
+      calc(var(--logo-list-marker-size, 20px) - 4px) calc(var(--logo-list-marker-size, 20px) - 4px),
+    var(--logo-list-nested-marker-bg-color, var(--accent-dark, slategray));
+}
+
+/** Ordered Marker */
+ol.logo-list > li {
+  counter-increment: item;
+
+  &::before {
+    content: counter(item);
+    background-color: var(--logo-list-marker-bg-color, var(--primary, black));
+  }
+}
+
+ol.logo-list > li .logo-list > li::before {
+  background-color: var(--logo-list-nested-marker-bg-color, var(--accent-dark, slategray));
+}

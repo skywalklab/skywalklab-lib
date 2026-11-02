@@ -1,0 +1,40 @@
+/**
+ * dot_indicator_ui (.dot-indicator-ui)
+ *
+ * .dot  Holds the dot open without hover or focus, e.g. to mark the current page.
+ *
+ * --dot-indicator-ui-color    Color of the dot revealed on hover, focus and active.       (currentColor)
+ */
+
+.dot-indicator-ui {
+  position: relative;
+
+  &::after {
+    content: "";
+    transform: scale(0);
+    height: 2px;
+    width: 2px;
+    position: absolute;
+    background-color: var(--dot-indicator-ui-color, currentColor);
+    border-radius: 50%;
+    right: -6px;
+    top: 35%;
+    transition: all 0.5s ease;
+    transform-origin: center center;
+  }
+
+  &:hover,
+  &:focus-visible,
+  &.dot {
+    &::after {
+      transform: scale(2);
+    }
+  }
+
+  &:active {
+    &::after {
+      transform: scale(1.5);
+      transition: none;
+    }
+  }
+}

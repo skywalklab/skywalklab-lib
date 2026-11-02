@@ -1,0 +1,36 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow: hidden;
+  font-family: "Source Serif", Georgia, "Times New Roman", Times, serif;
+}
+
+.layout-container,
+body > :first-child {
+  height: 100svh;
+  overflow: auto;
+  background-color: var(--background, white);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Inter", Georgia, sans-serif;
+}
+
+a {
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+}

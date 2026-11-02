@@ -1,0 +1,36 @@
+/**
+ * pop_up_ui (.pop-up-ui)
+ *
+ * --pop-up-ui-color              Text and border color.    (#0f1922)
+ * --pop-up-ui-bg-color           Background color.         (#ffffff)
+ * --pop-up-ui-box-shadow         Resting drop shadow.      (0px 2px 4px 0px rgba(0, 0, 0, 0.3))
+ * --pop-up-ui-active-box-shadow  Drop shadow while active. (0px 1px 2px 0px rgba(0, 0, 0, 0.3))
+ */
+
+.pop-up-ui {
+  --box-shadow-color: color-mix(in srgb, var(--pop-up-ui-bg-color), #000 30%);
+  color: var(--pop-up-ui-color, #0f1922);
+  border: 1px solid var(--pop-up-ui-color, #0f1922);
+  background-color: var(--pop-up-ui-bg-color, #ffffff);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 3px;
+  line-height: 18px;
+  display: inline-block;
+  transition: box-shadow 0.3s ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: box-shadow 0.75s ease;
+  }
+
+  &:hover,
+  &:focus-visible {
+    box-shadow: var(--pop-up-ui-box-shadow, 0px 2px 4px 0px var(--box-shadow-color));
+  }
+
+  &:active {
+    box-shadow: var(--pop-up-ui-active-box-shadow, 0px 1px 2px 0px var(--box-shadow-color));
+  }
+}

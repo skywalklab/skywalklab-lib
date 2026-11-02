@@ -1,0 +1,145 @@
+import { component_modules } from "$lib/utils/component-modules";
+import { component_descriptions } from "$lib/stories/component-descriptions.js";
+import { title } from "$lib/utils/helpers.js";
+import { Meta } from "@storybook/addon-docs/blocks";
+import React from "react";
+import { uncatalogued_internals } from "../../uncatalogued";
+import { Canvas } from "@storybook/addon-docs/blocks";
+import { mount, unmount } from "svelte";
+import SearchModal from "$lib/components/search/SearchModal.svelte";
+import { search_default_props } from "$lib/default-props/search.svelte";
+import AiChatbot from "$lib/components/chatbots/AiChatbot.svelte";
+import { chatbots_default_props } from "$lib/default-props/chatbots.svelte";
+
+<div className='mdx-file'></div>
+<Meta title='Introduction' />
+
+export const catalog = Object.entries(component_descriptions).map(([dir, componentMap]) => {
+  const components = [...componentMap.keys()].map((componentName) => ({ name: componentName, state: "docs" }));
+  return [title(dir), { components }];
+});
+export const allComponents = Object.values(catalog).flatMap(([, { components }]) => [...components]);
+export const searchModalProps = search_default_props.get("SearchModal").props;
+export const aiChatbotProps = chatbots_default_props.get("AiChatbot").props;
+
+export const slug = (s) => s.toLowerCase();
+
+export const Entry = ({ category, name, state }) =>
+  state === "docs"
+    ? React.createElement(
+        "a",
+        { target: "_top", href: `?path=/docs/components-${slug(category)}-${slug(name)}--docs` },
+        name
+      )
+    : React.createElement(
+        "span",
+        { style: { color: "#9ca3af" }, title: "Pas encore de story" },
+        name,
+        React.createElement("sup", { style: { fontSize: "0.7em", marginLeft: "0.15em" } }, "pas de story")
+      );
+
+# @skywalklab/lib
+
+La bibliothèque de composants derrière [SkywalkLab](https://skywalklab.com), une agence digitale qui crée des sites
+web et des outils d'IA sur mesure — **{allComponents.length + uncatalogued_internals.length} composants exportés**
+répartis en {catalog.length} catégories, chacun aussi disponible en custom element, ainsi que les modules CSS qui les
+stylent et les plugins Vite sur lesquels ils s'appuient. Le site de l'agence et chaque modèle de démo sont assemblés à
+partir d'eux.
+
+Construite avec les **runes et snippets de Svelte 5** et empaquetée avec `svelte-package`.
+Dépendances peer : `svelte@^5` et `@sveltejs/kit@^2.22.0`.
+
+Sur les {allComponents.length + uncatalogued_internals.length}, **{allComponents.length}** composants ont une page de
+documentation dans cette barre latérale ; les 17 autres sont exportés et utilisables, mais ce sont des éléments internes
+de composants documentés, ou de longs documents juridiques.
+
+export const SvelteMount = ({ component, props }) => {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const app = mount(component, { target: ref.current, props });
+    return () => unmount(app);
+  }, []);
+  return React.createElement("div", { ref });
+};
+
+<div style={{ height: "fit-content", margin: ".5rem 0" }}>
+  <SvelteMount
+    component={SearchModal}
+    props={{
+      ...searchModalProps,
+      modalProps: { ...searchModalProps.modalProps, showModal: false },
+      style: ""
+    }}
+  />
+</div>
+
+## Installation
+
+```bash
+pnpm add @skywalklab/lib
+```
+
+## Utilisation
+
+Importez depuis l'entrée racine, ou depuis le sous-chemin d'une catégorie pour garder le graphe d'imports restreint :
+
+```svelte
+<script>
+  import { Header1, Footer1 } from "@skywalklab/lib/components/nav";
+  import { Accordion } from "@skywalklab/lib/components/disclosure";
+</script>
+```
+
+Les composants reposent sur `preflight.css`, qui supprime les styles par défaut du navigateur. Il est fourni avec le
+package :
+
+```ts
+import "@skywalklab/lib/styles/preflight.css";
+```
+
+## Organisation de ce Storybook
+
+- **Une page par composant.** Chacun a une page de documentation avec son tableau de props et ses contrôles en direct,
+  et deux stories en dessous : `Default` l'affiche comme composant Svelte, et `Custom Element` affiche la même chose
+  sous forme de balise HTML, avec le code à copier juste en dessous.
+- **Intégration des composants Svelte.** Quatre pages de référence pour utiliser la bibliothèque dans un projet :
+  [Composants](?path=/docs/component-integration-components-svelte--docs) pour les importer et les styler,
+  [Modules CSS](?path=/docs/component-integration-css-modules--docs) pour les styles partagés des boutons et des
+  hamburgers, [Custom elements](?path=/docs/component-integration-custom-elements--docs) pour les utiliser en dehors de
+  Svelte, et [Plugins Vite](?path=/docs/component-integration-vite-plugins--docs) pour les plugins de build, qui
+  n'ont pas de rendu et donc pas de stories.
+- **Aperçus des composants.** La section `Overviews` a une page par catégorie qui affiche tous ses composants à la
+  fois, chaque libellé renvoyant vers la page de documentation du composant.
+- **Pages des modules CSS.** La section `CSS-Modules` affiche seuls les modules partagés de boutons, titres, listes
+  et en-tête.
+- **Styles d'exemple.** Les démos ajoutent des styles de présentation que les composants ne fournissent volontairement
+  pas : ce que vous voyez ici, c'est le composant plus une mise en page autour.
+
+## Catalogue
+
+Les noms en lien ont une page de documentation. Les noms grisés sont exportés par le package mais n'en ont pas encore.
+
+<ul style={{ listStyle: "none", padding: 0 }}>
+  {catalog.map(([category, { overview, components }]) => (
+    <li key={category} style={{ marginBottom: "1rem" }}>
+      <strong>
+        {overview ? (
+          <a target='_top' href={`?path=/docs/components-${slug(category)}-overview--docs`}>
+            {category}
+          </a>
+        ) : (
+          category
+        )}
+      </strong>{" "}
+      <span style={{ color: "#6b7280" }}>({components.length})</span>
+      <div style={{ marginTop: "0.25rem", lineHeight: 1.8 }}>
+        {components.map(({ name, state }, i) => (
+          <span key={name}>
+            {i > 0 && ", "}
+            <Entry category={category} name={name} state={state} />
+          </span>
+        ))}
+      </div>
+    </li>
+  ))}
+</ul>

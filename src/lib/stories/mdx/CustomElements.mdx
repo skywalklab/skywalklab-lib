@@ -1,0 +1,133 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<div class='mdx-file'></div>
+<Meta title='Component Integration/Custom Elements' />
+
+# Custom elements
+
+Every component is also published as a custom element — a plain HTML tag that works in any page, with
+no Svelte and no build step. Importing one registers it.
+
+With a bundler, where the library is installed:
+
+```html
+<script type="module">
+  import "@skywalklab/lib/custom-elements/skywalk-top-image-card.js";
+</script>
+```
+
+Without a build step, load it by URL instead, since a browser can't resolve the package name:
+
+```html
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/@skywalklab/lib/dist/custom-elements-bundle/skywalk-top-image-card.js"></script>
+```
+
+Then use the tag anywhere on the page:
+
+```html
+<skywalk-top-image-card sw-title="A title" sw-text="Some copy."></skywalk-top-image-card>
+```
+
+Each component's `Custom Element` story prints its markup with real values filled in, ready to copy.
+The rest of this page is the rules that markup follows.
+
+To register a whole category at once, import it by name, such as
+`@skywalklab/lib/custom-elements/cards.js`. `@skywalklab/lib/custom-elements` registers every element.
+
+## Props and attributes
+
+Props become attributes under an `sw-` prefix — `title` is `sw-title`. The prefix is not decoration:
+an attribute named exactly like a prop takes Svelte's property path, which breaks on a
+server-rendered page, and `style` would collide with `HTMLElement.prototype.style` and throw.
+
+```html
+<skywalk-top-image-card sw-title="A title" sw-text="Some copy.">
+  <img src="/logo.svg" alt="" width="60" height="96" />
+</skywalk-top-image-card>
+```
+
+A boolean prop reads the attribute's **presence**, not its value, so `sw-float="false"` is still
+true. Leave the attribute out to get false — that is the only way to express it in markup. From
+JavaScript you can set the property instead, where the value is used as given:
+
+```js
+document.querySelector("skywalk-ai-chatbot").float = false;
+```
+
+This is why an example omits an attribute whose default is `false` or `undefined`, and lists it
+under **Omitted attributes** rather than writing it out.
+
+Bindable props also get `reflect: true`, which writes the value back out as an attribute. That is the
+only outbound signal available — **Svelte custom elements never dispatch events**.
+
+## Callbacks
+
+Callbacks are JavaScript-only. An attribute is a string and no converter produces a function, so a
+callback is set as a property. Svelte also routes any `on`-prefixed prop to `addEventListener`, and a
+lowercase one shadows the native `HTMLElement` property, so callbacks are exposed under a prefixed
+name and passed back to the component under their own:
+
+```js
+document.querySelector("skywalk-clickable-tabs").swOnclick = (index) => console.log(index);
+```
+
+Assign it before the bundle loads or after the element upgrades — both work, because the prop is in
+the config, which is what lets a pre-upgrade assignment be picked up.
+
+## Slots
+
+A named snippet takes a named slot and `children` takes the default one:
+
+```html
+<skywalk-clickable-tabs sw-items='[{"title":"Dawn"}]'>
+  <span slot="buttonSnippet">…</span>
+  <p slot="panelSnippet">…</p>
+</skywalk-clickable-tabs>
+```
+
+Anything passed without a matching `slot` name is dropped, so the name has to match the snippet's
+exactly — the props table on the component's page lists them.
+
+## Snippets with arguments
+
+A snippet that takes an argument — one rendered once per item in a list — has no equivalent in HTML,
+since there is no function to receive the item. Instead you slot a template once and mark which
+parts come from the item with `data-*` attributes. The element clones it per item and fills them
+in.
+
+```html
+<skywalk-language-header id="nav">
+  <skywalk-rolladex slot="linkSnippet" data-text="text" data-href="href"></skywalk-rolladex>
+</skywalk-language-header>
+```
+
+`data-<prop>="<key>"` reads `<key>` from the snippet's argument and sets `<prop>` on the template.
+A dotted key reads one field, e.g. `data-src="item.icon"`; `data-class-list="isActive.highlight"`
+toggles a class from a boolean.
+
+### Where the value lands
+
+The name decides. `class`, `className`, `classList`, `style` and
+`dataset` act on the slotted element itself. Every other name is set as a DOM property, so when the
+slotted element is itself a custom element and the name is one of its declared props, the value
+reaches wherever that component puts it:
+
+```html
+<!-- sets a class on the <skywalk-rolladex> host, in this element's shadow root -->
+<skywalk-rolladex slot="linkSnippet" data-class-list="isPage.dot"></skywalk-rolladex>
+
+<!-- sets the `buttonClass` prop, which Rolladex puts on its own inner <a> -->
+<skywalk-rolladex slot="linkSnippet" data-button-class="buttonClass"></skywalk-rolladex>
+```
+
+Prefer the declared prop. A class set on the host is in the parent's tree, not the nested element's
+shadow root, so a rule that expects to sit alongside the component's own markup will not match.
+
+Values a snippet computes in Svelte have to be precomputed into the data instead, since a template
+cannot branch:
+
+```js
+nav.links = links.map((link) => ({ ...link, isPage: link.href === location.pathname }));
+```

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://motion-core.dev/registry/schema/config-schema.json",
+  "aliases": {
+    "components": {
+      "filesystem": "src/lib/motion-core",
+      "import": "$lib/motion-core"
+    }
+  },
+  "aliasPrefixes": {
+    "components": "$lib/motion-core"
+  },
+  "exports": {
+    "components": {
+      "barrel": "src/lib/motion-core/index.ts",
+      "strategy": "named"
+    }
+  }
+}

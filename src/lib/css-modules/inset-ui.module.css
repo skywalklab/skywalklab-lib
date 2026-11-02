@@ -1,0 +1,35 @@
+/**
+ * inset_ui (.inset-ui)
+ *
+ * --inset-ui-bg-color        Background color.           (translucent near-white)
+ * --inset-ui-border-color    Border color.               (translucent grey)
+ * --inset-ui-hover-bg-color  Background color on hover.  (translucent grey)
+ * --inset-ui-hover-color     Text color on hover.        (#000)
+ */
+
+.inset-ui {
+  background-color: var(--inset-ui-bg-color, oklab(0.960953 -0.000273854 -0.00286549 / 0.6));
+  white-space: nowrap;
+  display: block;
+  width: fit-content;
+  padding: 6px 8px;
+  transition: all 0.3s ease;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: inset 0 -2px #6f7b901a;
+  border: 1px solid var(--inset-ui-border-color, oklab(0.838273 -0.00114509 -0.0118952 / 0.5));
+
+  &:hover,
+  &:focus-visible {
+    box-shadow: 0 0 2px #6f7b901a;
+    background-color: var(--inset-ui-hover-bg-color, oklab(0.903555 -0.000181317 -0.0071255 / 0.5));
+    color: var(--inset-ui-hover-color, #000);
+  }
+
+  &:active {
+    box-shadow: inset 0 -2px #6f7b901a;
+    background-color: var(--inset-ui-hover-bg-color, oklab(0.903555 -0.000181317 -0.0071255 / 0.5));
+    transform: translateY(1px);
+    transition: none;
+  }
+}

@@ -1,0 +1,251 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<div class='mdx-file'></div>
+<Meta title='Component Integration/Vite Plugins' />
+
+# Vite plugins
+
+`@skywalklab/lib/server/plugins` ships the build-time plugins that set the library up in a project —
+CSS-module scoping, icon tree-shaking, sitemap generation. Most components import and render without
+any of them; you add `skywalkConfigPlugin` when you use the
+[CSS modules](?path=/docs/component-integration-css-modules--docs), and `skywalkLucidePlugin` if you
+use `LucideIcon`, which does not work without it. They have no rendered output, so they have no
+stories, and this page is the reference.
+
+They are loaded together through `getSkywalkPlugins`, which resolves them against the consuming
+project's `cwd`:
+
+```ts
+// vite.config.ts
+import { getSkywalkPlugins, type SkywalkVitePluginConfig } from "@skywalklab/lib/server/plugins";
+
+const cwd = process.cwd();
+const skywalkPlugins = await getSkywalkPlugins({ debug: process.env.DEBUG === "true", cwd });
+```
+
+## skywalkConfigPlugin
+
+Wires the library into the consuming project: the `/@skywalklib` alias, the `server.fs.allow` entries
+that let Vite read out of the package, and the CSS-module scoping the components expect. It also
+checks that peer dependencies are present.
+
+In a workspace it points at the library's `src/lib`; installed from the registry it points at `dist`.
+
+```ts
+skywalkPlugins.skywalkConfigPlugin({
+  cwd,
+  lightningcss: true,
+  company: "default",
+  command
+} as SkywalkVitePluginConfig) as PluginOption;
+```
+
+| Option         | Type                 | Notes                                                   |
+| -------------- | -------------------- | ------------------------------------------------------- |
+| `cwd`          | `string`             | The consuming project's root.                           |
+| `lightningcss` | `boolean`            | Use the LightningCSS transformer instead of PostCSS.    |
+| `company`      | `string`             | Selects the company config to build against.            |
+| `command`      | `"serve" \| "build"` | Vite's own command, passed through from `defineConfig`. |
+
+## skywalkLucidePlugin
+
+Required by `LucideIcon`, which cannot resolve an icon without it.
+
+The component takes an icon name as a string, so a bundler can't see which icons are used. This
+plugin scans the source for `lucide_icon` values with ripgrep, then rewrites the component's dynamic
+import into a map of just those icons, instead of shipping the whole `@lucide/svelte` set.
+
+The scan only picks up names written as quoted strings, in any of the usual positions — a prop
+(`lucide_icon="house"`), an object entry (`lucide_icon: "house"`), a default on a declaration
+(`lucide_icon: string = "house"`) or a fallback (`lucide_icon ?? "house"`). Names built at runtime
+can't be found — list those in `whiteList` or they won't ship.
+
+```ts
+skywalkPlugins.skywalkLucidePlugin({ cwd, useVendor: false });
+```
+
+| Option       | Type       | Notes                                                                       |
+| ------------ | ---------- | --------------------------------------------------------------------------- |
+| `cwd`        | `string`   | The consuming project's root.                                               |
+| `useVendor`  | `boolean`  | Resolve icons from the vendored copy rather than `node_modules`.            |
+| `whiteList`  | `string[]` | Icon names the source scan can't find, e.g. names built at runtime.         |
+| `includeAll` | `boolean`  | Bundle every icon the package ships and skip the scan. Defaults to `false`. |
+
+## skywalkSeoPlugin
+
+Generates `sitemap.xml` and `robots.txt` at build time. Static routes are declared inline;
+`dynamicRoute` maps a SvelteKit route pattern to the slugs it expands into.
+
+Pair it with `handleSitemapGET` / `handleSitemapStaticGET` (also exported from
+`@skywalklab/lib/server/plugins`) to serve the sitemap from an endpoint.
+
+```ts
+skywalkPlugins.skywalkSeoPlugin({
+  folder: "src/lib/skywalklab",
+  sitemap: {
+    routes: { include: [{ slug: "/" }] },
+    dynamicRoute: new Map([["[client]/[page]/", [{ slug: "_default/" }]]])
+  },
+  robots: {
+    siteUrl: "https://demo-1.skywalklab.com",
+    routes: { exclude: ["/"] }
+  },
+  directInsert: true,
+  execute: false
+}) as PluginOption;
+```
+
+| Option                 | Type                                             | Notes                                                              |
+| ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
+| `folder`               | `string`                                         | Where the generated files are written.                             |
+| `sitemap.routes`       | `{ include?, allowed?, disallowed? }`            | Each entry is `{ slug, changeFreq?, lastMod? }`.                   |
+| `sitemap.dynamicRoute` | `Map<string, { slug, changeFreq?, lastMod? }[]>` | Route pattern to the slugs it expands into.                        |
+| `robots.siteUrl`       | `string`                                         | Absolute site URL, written into `robots.txt`.                      |
+| `robots.routes`        | `{ include?, allowed?, disallowed?, exclude? }`  | Plain path strings.                                                |
+| `directInsert`         | `boolean`                                        | Write the files directly rather than going through the dev server. |
+| `execute`              | `boolean`                                        | Run the generation step.                                           |
+
+## skywalkCustomElementsPlugin
+
+Generates a custom-element wrapper for every component in `src/lib/components`, writing it to the
+matching path under `src/lib/custom-elements`. The components themselves stay plain Svelte — the
+wrapper is what carries `<svelte:options customElement>`, so nothing in the library is compiled to a
+custom element.
+
+It reads each component's `Props` interface with the TypeScript parser and maps every prop to a
+config entry, then renders the wrapper around the original component.
+
+Alongside the wrappers it writes an `examples.ts` per directory — the placeholder markup and setup
+shown in each component's Custom Element story.
+
+```ts
+skywalkPlugins.skywalkCustomElementsPlugin({ execute: false }) as PluginOption;
+```
+
+| Option               | Type       | Notes                                                                                           |
+| -------------------- | ---------- | ----------------------------------------------------------------------------------------------- |
+| `cwd`                | `string`   | The project root the component pass walks. Defaults to `process.cwd()`.                         |
+| `svelteOnly`         | `string[]` | Components to skip. Defaults to `["LucideIcon"]` — needs the Lucide plugin                      |
+| `includeStoryStyles` | `boolean`  | Adopt the story-only stylesheet into each shadow root, for rendering the elements in Storybook. |
+| `execute`            | `boolean`  | Off returns an empty plugin, so no wrappers are written.                                        |
+
+Using the generated elements — attributes, callbacks, slots and the `data-*` mapping — is covered
+in [Custom Elements](?path=/docs/component-integration-custom-elements--docs).
+
+## Full example
+
+```ts
+export default defineConfig(({ command }) => ({
+  plugins: [
+    sveltekit({
+      compilerOptions: {
+        runes: ({ filename }) => (filename.split(/[/\\]/).includes("node_modules") ? undefined : true)
+      },
+      alias: { ...(process.argv.includes("dev") ? skywalkLibWorkspaceAlias : {}) },
+      adapter: adapter()
+    }),
+    skywalkPlugins.skywalkConfigPlugin({ cwd, lightningcss: true, company: "default", command }),
+    skywalkPlugins.skywalkLucidePlugin({ cwd, useVendor: false }),
+    skywalkPlugins.skywalkSeoPlugin({
+      /* … */
+    })
+  ]
+}));
+```
+
+## skywalkVendorPlugin
+
+Copies a dependency's source into the project so it ships as first-party code instead of a
+`node_modules` import — for vendoring a small package outright rather than depending on it.
+
+> **This one is fragile, and it misses files.** It finds source by matching text with regular
+> expressions rather than parsing, so anything written in a shape it has no pattern for is skipped
+> silently — no error, just a file that never gets copied. Always check the output after a run;
+> see [What it works with](#what-it-works-with) for the known gaps and a script that
+> finds them.
+
+It runs on `build` only. From the package's entry points it walks the import graph with ripgrep,
+following relative, package-internal and bare imports, and copies each file it actually reaches into
+`vendorFolder` (default `src/<packageFolder>`). Imports are rewritten to point at the copies, and
+`index.ts` and `.d.ts` files are generated for what was pulled across. Files the graph never reaches
+are not copied.
+
+On finish it logs `Dependencies Needed:` — the dependencies of the vendored package that the project
+now has to provide itself, since they were imports rather than copied source.
+
+Anything already vendored is reused; the folder is only cleared when there's no vendor map yet.
+`config.json` in the vendor folder records `useVendor`, which `getVendorConfig` reads back so the
+rest of the build knows whether to resolve from the vendored copy.
+
+### What it works with
+
+The graph is walked by **matching import and export statements with regular expressions**, not by
+parsing the files. That keeps it fast and dependency-free, but it only sees the shapes it has
+patterns for. Aim it at a small, plainly written package and check the output — it is not a
+general-purpose bundler.
+
+It handles:
+
+- Static `import` and `import()` of relative, package-internal and bare specifiers
+- Named, default, namespace and aliased specifiers, and inline `type` imports
+- `export { Foo } from "./module"` re-exports
+- `export const` / `let` / `var` / `function` / `async function` / `function*` / `class`
+- `export { Foo }` binding lists
+- `interface`, `type`, `enum` and `namespace` declarations, for the generated `.d.ts`
+- The file types in `extensions` — by default `.svelte`, `.svelte.js`, `.js`, `.type.d.ts`,
+  `.d.ts`, `.module.css` and `.css`
+
+It does not handle:
+
+- `require()` or any CommonJS package — ESM source only
+- A specifier that isn't a literal string, such as a template literal or a variable
+- `export *` wildcards, which resolve to no named exports
+- Conditional or platform-specific entry points in `exports` maps; `bundleFolder` defaults to the
+  package's first `files` entry
+- TypeScript source (`.ts`) unless you add it to `extensions`, since only `.d.ts` is there by default
+- Anything reached at runtime rather than through an import statement
+- A **default import renamed away from the file it points at**. The target is resolved from the local
+  binding name, so `import Clock from ".../icons/clock"` vendors `clock.svelte`, while
+  `import ClockIcon from ".../icons/clock"` copies only the `clock.js` shim and leaves its
+  `export { default } from "./clock.svelte"` dangling.
+
+A package that misses on any of these vendors incompletely, and because the copy only happens during
+a build, the gap usually shows up as a missing module later rather than as an error here. After a
+run, check that every relative import in the vendored folder resolves:
+
+```bash
+# from the vendor folder — prints nothing when the copy is complete
+for f in $(find . -name "*.svelte" -o -name "*.js"); do
+  grep -ohE "from ['\"]\.[^'\"]*['\"]" "$f" | sed "s/from ['\"]//;s/['\"]//" | while read -r s; do
+    t="$(dirname "$f")/$s"
+    [ -f "$t" ] || [ -f "$t.js" ] || [ -f "$t.svelte" ] || echo "MISSING: $f -> $s"
+  done
+done
+```
+
+```ts
+skywalkPlugins.skywalkVendorPlugin({
+  cwd,
+  folders: {
+    useVendor: false,
+    packageFolder: "@lucide/svelte"
+  },
+  useNpmAlias: true,
+  execute: false
+}) as PluginOption;
+```
+
+A scoped name keeps its scope in the path, so this vendors into `src/@lucide/svelte`. It pairs with
+`skywalkLucidePlugin({ cwd, useVendor: true })`, which resolves icons from the vendored copy instead
+of `node_modules` — the vendored folder holds only the icons the scan found, not the whole set.
+
+| Option                  | Type       | Notes                                                                  |
+| ----------------------- | ---------- | ---------------------------------------------------------------------- |
+| `cwd`                   | `string`   | The consuming project's root.                                          |
+| `folders.packageFolder` | `string`   | The package to vendor, as named in `node_modules`.                     |
+| `folders.useVendor`     | `boolean`  | Written to `config.json` for the rest of the build to read.            |
+| `folders.vendorFolder`  | `string`   | Where the copies land. Defaults to `src/<packageFolder>`.              |
+| `folders.bundleFolder`  | `string`   | Subfolder to copy from. Defaults to the package's first `files` entry. |
+| `extensions`            | `string[]` | Which files to follow. Defaults to Svelte, JS, `.d.ts` and CSS.        |
+| `useNpmAlias`           | `boolean`  | Resolve through an npm alias rather than the bare package name.        |
+| `execute`               | `boolean`  | Off returns an empty plugin, so the copy step is skipped entirely.     |

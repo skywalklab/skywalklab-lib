@@ -1,0 +1,149 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { defaultLabels } from "$lib/utils/labels.js";
+
+export const labelRows = Object.entries(defaultLabels).map(([key, value]) => {
+  if (typeof value !== "function") return [key, value];
+  const params = value
+    .toString()
+    .match(/^\(?([^)=]*)\)?\s*=>/)[1]
+    .split(",")
+    .map((p) => `{${p.trim()}}`);
+  return [key, value(...params)];
+});
+
+<div class='mdx-file'></div>
+<Meta title='Component Integration/Components (Svelte)' />
+
+# Composants
+
+103 composants répartis en 23 catégories, à utiliser dans un projet Svelte ou SvelteKit. Pour les utiliser en HTML
+simple, voir [Custom elements](?path=/docs/component-integration-custom-elements--docs).
+
+La page de chaque composant dans la barre latérale contient son tableau de props et un panneau de contrôles en direct.
+Cette page couvre ce qu'ils ont tous en commun : comment les importer, les styler et leur passer du contenu.
+
+## Import
+
+Importez depuis un répertoire plutôt que depuis la racine du package, pour n'embarquer que les composants de ce
+répertoire :
+
+```ts
+import { TopImageCard } from "@skywalklab/lib/components/cards";
+import { Header1 } from "@skywalklab/lib/components/nav";
+```
+
+`@skywalklab/lib/components` exporte tout, ce qui est pratique mais plus coûteux dans le bundle. Chacun des 23
+répertoires a son propre chemin d'export : `animations`, `banners`, `brand`, `buttons`, `cards`, `carousels`,
+`chatbots`, `diagrams`, `disclosure`, `frames`, `galleries`, `headings`, `heros`, `icons`, `legal`, `lists`, `modals`,
+`nav`, `panels`, `patterns`, `search`, `seo`, `utilities`.
+
+## Props
+
+Chaque composant est entièrement typé, et le tableau de props de sa page est généré à partir de ce type — la
+description à côté de chaque prop est le commentaire de documentation du code source, donc les deux ne peuvent pas
+diverger.
+
+Presque tous les composants acceptent aussi `style`, appliqué à leur élément racine. C'est la porte de sortie prévue
+pour une mise en page ponctuelle — largeur, marge, changement de `display` — sans toucher aux classes du composant :
+
+```svelte
+<TopImageCard title="A title" style="max-width: 20rem;" />
+```
+
+## Styles
+
+### Styles de base
+
+Les composants reposent sur `preflight.css`, qui supprime les styles par défaut du navigateur. Importez-le une fois :
+
+```ts
+import "@skywalklab/lib/styles/preflight.css";
+```
+
+### Variables CSS
+
+Les composants lisent leurs couleurs et espacements dans des variables CSS, chacune avec une valeur de repli, pour
+avoir un rendu correct avant toute personnalisation :
+
+```css
+background-color: var(--background, white);
+color: var(--primary, black);
+```
+
+Définissez-les sur `:root` ou sur n'importe quel ancêtre, et tout ce qui se trouve en dessous les reprend. Rien n'est
+obligatoire.
+
+### Modules CSS
+
+Certains composants acceptent un nom de classe en prop au lieu de styler eux-mêmes un sous-élément, ce qui permet à un
+même composant de proposer plusieurs variantes visuelles — un style de bouton, une animation de hamburger. Voir
+[Modules CSS](?path=/docs/component-integration-css-modules--docs).
+
+## Snippets
+
+Le contenu qu'un composant affiche lui est passé sous forme de snippet, pas de slot. Le cas courant est `children` :
+
+```svelte
+<TopImageCard title="A title" text="Some copy.">
+  <img src="/logo.svg" alt="" width="60" height="96" />
+</TopImageCard>
+```
+
+Un composant qui affiche une liste accepte un snippet par élément et l'appelle avec cet élément :
+
+```svelte
+<LoadMoreList {items} limit={3} {loadItems}>
+  {#snippet itemSnippet({ item, index })}
+    <TopImageCard title={item.title} text={item.text} />
+  {/snippet}
+</LoadMoreList>
+```
+
+Le tableau de props indique les arguments de chaque snippet. Un snippet qui prend des arguments est le seul cas sans
+équivalent en dehors de Svelte — le custom element le rend à la place sous forme de template `data-*`.
+
+## Libellés accessibles
+
+Les libellés que la bibliothèque écrit elle-même, comme les boutons fléchés d'un carrousel ou le bouton de fermeture
+d'une fenêtre, sont en anglais par défaut. Remplacez-les une fois dans votre layout racine, et tous les composants en
+dessous les reprennent. Les clés que vous omettez restent en anglais :
+
+```svelte
+<script>
+  import { setLibraryLabels } from "@skywalklab/lib/utils";
+
+  setLibraryLabels({
+    close: "Fermer",
+    previousSlide: "Diapositive précédente",
+    showSlide: (n) => `Afficher la diapositive ${n}`
+  });
+</script>
+```
+
+Les libellés avec une valeur entre accolades sont des fonctions qui la reçoivent. `LibraryLabels` type l'objet complet.
+Ils n'atteignent pas les custom elements, qui utilisent toujours l'anglais.
+
+<table>
+  <thead>
+    <tr>
+      <th>Clé</th>
+      <th>Valeur par défaut</th>
+    </tr>
+  </thead>
+  <tbody>
+    {labelRows.map(([key, value]) => (
+      <tr key={key}>
+        <td>
+          <code>{key}</code>
+        </td>
+        <td>{value}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+## Pages rendues côté serveur
+
+Tous les composants se rendent côté serveur, donc rien n'a besoin d'une garde `browser` ou d'une enveloppe réservée au
+client. Un composant animé rend son état final dans le HTML et commence à s'animer une fois la page hydratée : il est
+donc visible et lisible pendant que le JavaScript charge encore.

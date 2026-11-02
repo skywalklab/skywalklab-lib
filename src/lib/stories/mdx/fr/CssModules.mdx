@@ -1,0 +1,121 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<div class='mdx-file'></div>
+<Meta title='Component Integration/CSS Modules' />
+
+# Modules CSS
+
+Les styles des boutons, titres et listes, disponibles seuls. Mettez la classe sur votre propre balisage et vous obtenez
+le rendu sans importer de composant :
+
+```svelte
+<script>
+  import { default_ui } from "@skywalklab/lib/css-modules";
+</script>
+
+<button class={default_ui["default-ui"]}>Send</button>
+```
+
+Un import vous donne une table qui associe les clés de classe aux vrais noms scopés : vous l'indexez donc avec la clé
+que vous voyez dans le fichier. La section `CSS-Modules` de la barre latérale affiche chaque module sur des éléments
+simples de cette façon, avec un sélecteur pour les variantes.
+
+## Ils ont besoin du plugin
+
+Les noms de classe sont scopés au moment du build, et le motif est défini par
+[`skywalkConfigPlugin`](?path=/docs/component-integration-vite-plugins--docs) via le `generateScopedName` de Vite.
+Sans lui, votre build génère des noms différents, la recherche renvoie `undefined`, et l'élément s'affiche sans style
+au lieu de lever une erreur.
+
+C'est la seule partie de la bibliothèque qui ne fonctionne pas avec les seuls imports.
+
+## Ce qui est disponible
+
+Dix styles de bouton — `default_ui`, `default_outline_ui`, `inset_ui`, `jump_ui`, `pop_up_ui`, `slide_ui`, `text_ui`,
+`underline_ui`, `dot_indicator_ui`, `slide_indicator_ui` — plus `logo_list`, `icon_heading`, `icon_inline_heading` et
+`header1`.
+
+Chacun expose une classe principale qui porte le nom du module, et `logo_list` ajoute des modificateurs comme
+`outline-markers` et `active-hover`. Le commentaire en tête de chaque fichier les liste.
+
+## Certains composants les appliquent déjà
+
+La plupart de ces modules ont un composant qui les enveloppe : `DefaultButton` applique `default_ui`, `TextButton`
+applique `text_ui` et ainsi de suite dans `components/buttons`, tandis que `LogoList`, `IconHeading`,
+`IconInlineHeading` et `Header1` font de même pour les leurs. Vous ne leur passez pas de classe — utilisez le composant
+quand vous voulez aussi son comportement et son balisage, et le module directement quand vous ne voulez que le rendu.
+
+## En passer un à un composant
+
+Un composant qui affiche un bouton à l'intérieur d'un ensemble plus large vous laisse choisir son style via
+`buttonClass` : `LinearCarousel`, `SlideshowCarousel`, `Rolladex`, `AiChatbot`, `CookieBanner`, `AsideNav1`,
+`StaticGrid`, `SearchModal` et `ContactForm1`.
+
+```svelte
+<script>
+  import { default_ui } from "@skywalklab/lib/css-modules";
+  import { CookieBanner } from "@skywalklab/lib/components/legal";
+</script>
+
+<CookieBanner buttonClass={default_ui["default-ui"]} />
+```
+
+`AiChatbot` accepte aussi `suggestionButtonClass`, et `LanguageHeader` accepte `headerClass`, tous deux de la même
+façon.
+
+## Hamburgers
+
+`HamburgerBase` accepte un module entier plutôt qu'une seule classe, via `cssModule`, car une animation de hamburger
+se compose de plusieurs règles coordonnées :
+
+```svelte
+<script>
+  import { spin_hamburger } from "@skywalklab/lib/css-modules";
+  import { HamburgerBase } from "@skywalklab/lib/components/nav";
+</script>
+
+<HamburgerBase type="spin" cssModule={spin_hamburger} />
+```
+
+Il existe 26 variantes — `spin`, `elastic`, `collapse`, `squeeze`, `vortex`, `arrow`, `emphatic`, `spring`, `stand`,
+`slider`, `minus`, `boring`, la famille `3d`, et une version `reverse` de la plupart, chacune exportée sous le nom
+`<name>_hamburger`. La prop `type` et le module doivent désigner la même.
+
+## Personnalisation
+
+Chaque module lit ses couleurs dans des variables CSS avec des valeurs de repli, documentées dans un commentaire en
+tête du fichier. `default-ui.module.css` commence ainsi :
+
+```css
+/**
+ * default_ui (.default-ui)
+ *
+ * --default-ui-color     Text and border color. Swaps with the background on hover.  (#fff)
+ * --default-ui-bg-color  Background color. Swaps with the text color on hover.       (var(--primary, black))
+ */
+```
+
+Définissez-les n'importe où au-dessus du composant, et toutes les instances en dessous suivent :
+
+```css
+:root {
+  --default-ui-bg-color: #0f1922;
+  --default-ui-color: #fff;
+}
+```
+
+Rien n'est obligatoire — chaque variable a une valeur de repli, et la plupart se replient sur une variable de thème
+avant d'atteindre une valeur littérale.
+
+## Dans les custom elements
+
+Un élément adopte automatiquement dans son shadow root les modules dont il a besoin, y compris celui désigné par une
+prop de classe. Passez la classe de la même façon, en attribut :
+
+```html
+<skywalk-rolladex sw-button-class="sw_dot-indicator-ui"></skywalk-rolladex>
+```
+
+Le préfixe `sw_` est ce que `generateScopedName` a produit au build : le nom n'est donc pas celui que vous importez en
+Svelte. La story `Custom Element` de chaque élément affiche son balisage avec les vrais noms, c'est l'endroit fiable où
+le copier.

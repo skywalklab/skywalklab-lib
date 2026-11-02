@@ -1,0 +1,144 @@
+import { component_modules } from "$lib/utils/component-modules";
+import { component_descriptions } from "$lib/stories/component-descriptions.js";
+import { title } from "$lib/utils/helpers.js";
+import { Meta } from "@storybook/addon-docs/blocks";
+import React from "react";
+import { uncatalogued_internals } from "../uncatalogued";
+import { Canvas } from "@storybook/addon-docs/blocks";
+import { mount, unmount } from "svelte";
+import SearchModal from "$lib/components/search/SearchModal.svelte";
+import { search_default_props } from "$lib/default-props/search.svelte";
+import AiChatbot from "$lib/components/chatbots/AiChatbot.svelte";
+import { chatbots_default_props } from "$lib/default-props/chatbots.svelte";
+
+<div className='mdx-file'></div>
+<Meta title='Introduction' />
+
+export const catalog = Object.entries(component_descriptions).map(([dir, componentMap]) => {
+  const components = [...componentMap.keys()].map((componentName) => ({ name: componentName, state: "docs" }));
+  return [title(dir), { components }];
+});
+export const allComponents = Object.values(catalog).flatMap(([, { components }]) => [...components]);
+export const searchModalProps = search_default_props.get("SearchModal").props;
+export const aiChatbotProps = chatbots_default_props.get("AiChatbot").props;
+
+export const slug = (s) => s.toLowerCase();
+
+export const Entry = ({ category, name, state }) =>
+  state === "docs"
+    ? React.createElement(
+        "a",
+        { target: "_top", href: `?path=/docs/components-${slug(category)}-${slug(name)}--docs` },
+        name
+      )
+    : React.createElement(
+        "span",
+        { style: { color: "#9ca3af" }, title: "No story yet" },
+        name,
+        React.createElement("sup", { style: { fontSize: "0.7em", marginLeft: "0.15em" } }, "no story")
+      );
+
+# @skywalklab/lib
+
+The component library behind [SkywalkLab](https://skywalklab.com), a digital agency building custom websites and AI
+tools — **{allComponents.length + uncatalogued_internals.length} exported components** across {catalog.length}
+categories, each also available as a custom element, plus the CSS modules they style with and the Vite plugins they
+build on. The agency site and every demo template are assembled from them.
+
+Built on **Svelte 5 runes and snippets** and packaged with `svelte-package`.
+Peer dependencies: `svelte@^5` and `@sveltejs/kit@^2.22.0`.
+
+Of the {allComponents.length + uncatalogued_internals.length}, **{allComponents.length}** components have a docs page
+in this sidebar; the other 17 are exported and usable but are internal pieces of components that do, or long-form
+legal documents.
+
+export const SvelteMount = ({ component, props }) => {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const app = mount(component, { target: ref.current, props });
+    return () => unmount(app);
+  }, []);
+  return React.createElement("div", { ref });
+};
+
+<div style={{ height: "fit-content", margin: ".5rem 0" }}>
+  <SvelteMount
+    component={SearchModal}
+    props={{
+      ...searchModalProps,
+      modalProps: { ...searchModalProps.modalProps, showModal: false },
+      style: ""
+    }}
+  />
+</div>
+
+## Install
+
+```bash
+pnpm add @skywalklab/lib
+```
+
+## Use
+
+Import from the root entry, or from a category subpath to keep the import graph narrow:
+
+```svelte
+<script>
+  import { Header1, Footer1 } from "@skywalklab/lib/components/nav";
+  import { Accordion } from "@skywalklab/lib/components/disclosure";
+</script>
+```
+
+The components are built on `preflight.css`, which removes default browser styles. It ships with the
+package:
+
+```ts
+import "@skywalklab/lib/styles/preflight.css";
+```
+
+## How this Storybook is organized
+
+- **One page per component.** Each has a docs page with its props table and live controls, and two
+  stories beneath it: `Default` renders it as a Svelte component, and `Custom Element` renders the
+  same thing as an HTML tag, with the markup to copy shown below it.
+- **Svelte Component Integration.** Four reference pages for using the library in a project:
+  [Components](?path=/docs/component-integration-components-svelte--docs) for importing and styling
+  them, [CSS Modules](?path=/docs/component-integration-css-modules--docs) for the shared button and
+  hamburger styles, [Custom Elements](?path=/docs/component-integration-custom-elements--docs) for
+  using them outside Svelte, and [Vite Plugins](?path=/docs/component-integration-vite-plugins--docs)
+  for the build-time plugins, which have no rendered output and so no stories.
+- **Component Overviews.** The `Overviews` section has a page per category that renders every component
+  in that category at once, with each label linking through to the component's own docs page.
+- **CSS-module pages.** The `CSS-Modules` section renders the shared button, heading, list and
+  header modules on their own.
+- **Example styling.** The demos carry presentational styles the components deliberately do not
+  ship, so what you see here is the component plus a layout around it.
+
+## Catalog
+
+Linked names have a docs page. Grayed names are exported from the package but still waiting on one.
+
+<ul style={{ listStyle: "none", padding: 0 }}>
+  {catalog.map(([category, { overview, components }]) => (
+    <li key={category} style={{ marginBottom: "1rem" }}>
+      <strong>
+        {overview ? (
+          <a target='_top' href={`?path=/docs/components-${slug(category)}-overview--docs`}>
+            {category}
+          </a>
+        ) : (
+          category
+        )}
+      </strong>{" "}
+      <span style={{ color: "#6b7280" }}>({components.length})</span>
+      <div style={{ marginTop: "0.25rem", lineHeight: 1.8 }}>
+        {components.map(({ name, state }, i) => (
+          <span key={name}>
+            {i > 0 && ", "}
+            <Entry category={category} name={name} state={state} />
+          </span>
+        ))}
+      </div>
+    </li>
+  ))}
+</ul>

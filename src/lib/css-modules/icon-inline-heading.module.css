@@ -1,0 +1,24 @@
+/**
+ * icon_inline_heading (.icon-inline-heading)
+ *   Expects the icon as the first child, followed by the rest of the content.
+ *
+ * --icon-inline-heading-vertical-align  Set the vertical-align property. (sub)
+ */
+
+.icon-inline-heading.icon-inline-heading {
+  width: fit-content;
+  text-wrap: balance;
+
+  > :first-child,
+  img,
+  svg {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: var(--icon-inline-heading-vertical-align, sub);
+    color: inherit;
+  }
+
+  > :first-child {
+    margin-right: 0.5rem;
+  }
+}

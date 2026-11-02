@@ -1,0 +1,259 @@
+{
+  "name": "@skywalklab/lib",
+  "description": "A Svelte 5 component library for SkywalkLab sites, plus the actions, utilities, CSS modules and Vite plugins they depend on.",
+  "author": "SkywalkLab",
+  "homepage": "https://lab.skywalklab.com",
+  "license": "MIT",
+  "version": "0.8.508",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "test": "npm run build:custom-elements && vitest run",
+    "dev": "vite dev",
+    "build": "vite build && npm run prepack",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync && svelte-package || echo ''",
+    "prepack": "svelte-kit sync && svelte-package && npm run build:custom-elements && publint",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "format": "prettier --write .",
+    "lint": "prettier --check . && eslint .",
+    "watch": "chokidar 'src/lib/**/*.{svelte,ts,css}' --command 'npm run prepack'",
+    "update-version": "vite-node src/scripts/update-version.ts",
+    "generate:custom-elements": "vite-node src/scripts/generate-custom-elements.ts",
+    "generate:lab-ai": "vite-node src/scripts/generate-lab-ai.ts",
+    "build:custom-elements": "vite build -c vite.custom-elements.config.ts",
+    "mirror": "vite-node src/scripts/mirror.ts",
+    "screenshot:stories": "vite-node src/scripts/screenshot-stories.ts",
+    "screenshot:stories:fr": "STORYBOOK_LOCALE=fr vite-node src/scripts/screenshot-stories.ts",
+    "build:publish": "echo \"Patching version...\" && npm run update-version && echo \"Building...\" && npm run build && echo \"Publishing...\" && npm publish",
+    "storybook": "storybook dev -p 6006",
+    "storybook:fr": "STORYBOOK_LOCALE=fr storybook dev -p 6007",
+    "build-storybook": "npm run build:custom-elements && STORYBOOK=true storybook build",
+    "build-storybook:fr": "npm run build:custom-elements && STORYBOOK=true STORYBOOK_LOCALE=fr storybook build -o storybook-static-fr"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*",
+    "!dist/**/*.stories.*"
+  ],
+  "sideEffects": [
+    "**/*.css",
+    "./dist/custom-elements-bundle/**"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
+    },
+    "./server/plugins": {
+      "types": "./dist/server/plugins/index.d.ts",
+      "default": "./dist/server/plugins/index.js"
+    },
+    "./styles/*": "./dist/styles/*",
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "svelte": "./dist/components/index.js"
+    },
+    "./components/animations": {
+      "types": "./dist/components/animations/index.d.ts",
+      "svelte": "./dist/components/animations/index.js"
+    },
+    "./components/banners": {
+      "types": "./dist/components/banners/index.d.ts",
+      "svelte": "./dist/components/banners/index.js"
+    },
+    "./components/brand": {
+      "types": "./dist/components/brand/index.d.ts",
+      "svelte": "./dist/components/brand/index.js"
+    },
+    "./components/buttons": {
+      "types": "./dist/components/buttons/index.d.ts",
+      "svelte": "./dist/components/buttons/index.js"
+    },
+    "./components/cards": {
+      "types": "./dist/components/cards/index.d.ts",
+      "svelte": "./dist/components/cards/index.js"
+    },
+    "./components/carousels": {
+      "types": "./dist/components/carousels/index.d.ts",
+      "svelte": "./dist/components/carousels/index.js"
+    },
+    "./components/chatbots": {
+      "types": "./dist/components/chatbots/index.d.ts",
+      "svelte": "./dist/components/chatbots/index.js"
+    },
+    "./components/diagrams": {
+      "types": "./dist/components/diagrams/index.d.ts",
+      "svelte": "./dist/components/diagrams/index.js"
+    },
+    "./components/disclosure": {
+      "types": "./dist/components/disclosure/index.d.ts",
+      "svelte": "./dist/components/disclosure/index.js"
+    },
+    "./components/frames": {
+      "types": "./dist/components/frames/index.d.ts",
+      "svelte": "./dist/components/frames/index.js"
+    },
+    "./components/galleries": {
+      "types": "./dist/components/galleries/index.d.ts",
+      "svelte": "./dist/components/galleries/index.js"
+    },
+    "./components/legal": {
+      "types": "./dist/components/legal/index.d.ts",
+      "svelte": "./dist/components/legal/index.js"
+    },
+    "./components/headings": {
+      "types": "./dist/components/headings/index.d.ts",
+      "svelte": "./dist/components/headings/index.js"
+    },
+    "./components/heros": {
+      "types": "./dist/components/heros/index.d.ts",
+      "svelte": "./dist/components/heros/index.js"
+    },
+    "./components/icons": {
+      "types": "./dist/components/icons/index.d.ts",
+      "svelte": "./dist/components/icons/index.js"
+    },
+    "./components/lists": {
+      "types": "./dist/components/lists/index.d.ts",
+      "svelte": "./dist/components/lists/index.js"
+    },
+    "./components/modals": {
+      "types": "./dist/components/modals/index.d.ts",
+      "svelte": "./dist/components/modals/index.js"
+    },
+    "./components/nav": {
+      "types": "./dist/components/nav/index.d.ts",
+      "svelte": "./dist/components/nav/index.js"
+    },
+    "./components/panels": {
+      "types": "./dist/components/panels/index.d.ts",
+      "svelte": "./dist/components/panels/index.js"
+    },
+    "./components/patterns": {
+      "types": "./dist/components/patterns/index.d.ts",
+      "svelte": "./dist/components/patterns/index.js"
+    },
+    "./components/search": {
+      "types": "./dist/components/search/index.d.ts",
+      "svelte": "./dist/components/search/index.js"
+    },
+    "./components/seo": {
+      "types": "./dist/components/seo/index.d.ts",
+      "svelte": "./dist/components/seo/index.js"
+    },
+    "./components/utilities": {
+      "types": "./dist/components/utilities/index.d.ts",
+      "svelte": "./dist/components/utilities/index.js"
+    },
+    "./custom-elements": "./dist/custom-elements-bundle/index.js",
+    "./custom-elements/*": "./dist/custom-elements-bundle/*",
+    "./actions": {
+      "types": "./dist/actions/index.d.ts",
+      "default": "./dist/actions/index.js"
+    },
+    "./assets": {
+      "types": "./dist/assets/index.d.ts",
+      "default": "./dist/assets/index.js"
+    },
+    "./brand": {
+      "types": "./dist/brand/index.d.ts",
+      "default": "./dist/brand/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
+    },
+    "./stories": {
+      "types": "./dist/stories/index.d.ts",
+      "default": "./dist/stories/index.js"
+    },
+    "./css-modules": {
+      "types": "./dist/css-modules/index.d.ts",
+      "default": "./dist/css-modules/index.js"
+    },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js"
+    }
+  },
+  "peerDependencies": {
+    "@sveltejs/kit": "^2.22.0",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^1.2.5",
+    "@eslint/js": "^9.18.0",
+    "@iconify/types": "^2.0.0",
+    "@inlang/paraglide-js": "^2.13.1",
+    "@storybook/addon-a11y": "^10.6.0",
+    "@storybook/addon-docs": "^10.6.0",
+    "@storybook/addon-links": "^10.6.0",
+    "@storybook/addon-svelte-csf": "^5.1.3",
+    "@storybook/addon-vitest": "^10.6.0",
+    "@storybook/sveltekit": "^10.6.0",
+    "@sveltejs/adapter-auto": "^6.0.0",
+    "@sveltejs/kit": "^2.53.4",
+    "@sveltejs/package": "^2.0.0",
+    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@types/grecaptcha": "^3.0.9",
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^22.19.19",
+    "@types/semver": "^7.7.0",
+    "@vitest/browser-playwright": "^4.1.11",
+    "@vitest/coverage-v8": "^4.1.11",
+    "chokidar-cli": "^3.0.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-storybook": "^10.6.0",
+    "eslint-plugin-svelte": "^3.0.0",
+    "globals": "^16.0.0",
+    "lightningcss": "^1.32.0",
+    "playwright": "^1.60.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-svelte": "^4.1.1",
+    "publint": "^0.3.2",
+    "puppeteer": "^24.41.0",
+    "remark-gfm": "^4.0.1",
+    "semver": "^7.7.2",
+    "storybook": "^10.6.0",
+    "storybook-dark-mode": "^5.0.0",
+    "svelte": "^5.53.6",
+    "svelte-check": "^4.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.20.0",
+    "vite": "^7.3.1",
+    "vite-node": "^3.2.4",
+    "vitest": "^4.1.11"
+  },
+  "keywords": [
+    "svelte"
+  ],
+  "dependencies": {
+    "@ai-sdk/svelte": "^5.0.127",
+    "@devmansam/device-mockup": "^1.0.2",
+    "@googlemaps/js-api-loader": "^2.1.1",
+    "@lucide/svelte": "^1.20.0",
+    "@sentry/sveltekit": "^10.41.0",
+    "@vscode/ripgrep": "^1.17.0",
+    "ai": "^7.0.127",
+    "find-up": "^8.0.0",
+    "github-markdown-css": "^5.9.0",
+    "gsap": "^3.14.2",
+    "jiti": "^2.6.1",
+    "js-cookie": "^3.0.5",
+    "marked": "^18.0.3",
+    "ogl": "^1.0.11",
+    "svelte-flag-icons": "^3.0.1",
+    "svelte-hamburgers": "^5.0.0",
+    "svelte-loading-spinners": "^0.3.6"
+  }
+}

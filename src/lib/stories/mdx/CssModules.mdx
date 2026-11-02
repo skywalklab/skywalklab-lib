@@ -1,0 +1,122 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<div class='mdx-file'></div>
+<Meta title='Component Integration/CSS Modules' />
+
+# CSS modules
+
+The styling behind the buttons, headings and lists, available on its own. Put the class on your own
+markup and you get the look without pulling in a component:
+
+```svelte
+<script>
+  import { default_ui } from "@skywalklab/lib/css-modules";
+</script>
+
+<button class={default_ui["default-ui"]}>Send</button>
+```
+
+An import gives you a map of class keys to the real, scoped names, so you index it by the key you
+see in the file. The `CSS-Modules` section in the sidebar renders each module on plain elements like
+this, with a picker for the variants.
+
+## They need the plugin
+
+Class names are scoped at build time, and the pattern is set by
+[`skywalkConfigPlugin`](?path=/docs/component-integration-vite-plugins--docs) through Vite's
+`generateScopedName`. Without it your build generates different names, the lookup returns
+`undefined`, and the element renders unstyled rather than erroring.
+
+This is the one part of the library that does not work on imports alone.
+
+## What is available
+
+Ten button styles — `default_ui`, `default_outline_ui`, `inset_ui`, `jump_ui`, `pop_up_ui`,
+`slide_ui`, `text_ui`, `underline_ui`, `dot_indicator_ui`, `slide_indicator_ui` — plus `logo_list`,
+`icon_heading`, `icon_inline_heading` and `header1`.
+
+Each exposes one main class named after the module, and `logo_list` adds modifiers such as
+`outline-markers` and `active-hover`. The comment at the top of each file lists them.
+
+## Some components already apply them
+
+Most of these modules have a component that wraps them: `DefaultButton` applies `default_ui`,
+`TextButton` applies `text_ui` and so on through `components/buttons`, while `LogoList`,
+`IconHeading`, `IconInlineHeading` and `Header1` do the same for their own. You do not pass those a
+class — use the component when you want its behavior and markup too, and the module directly when
+you only want the look.
+
+## Passing one to a component
+
+A component that renders a button inside something larger lets you choose which style it gets,
+through `buttonClass`: `LinearCarousel`, `SlideshowCarousel`, `Rolladex`, `AiChatbot`, `CookieBanner`,
+`AsideNav1`, `StaticGrid`, `SearchModal` and `ContactForm1`.
+
+```svelte
+<script>
+  import { default_ui } from "@skywalklab/lib/css-modules";
+  import { CookieBanner } from "@skywalklab/lib/components/legal";
+</script>
+
+<CookieBanner buttonClass={default_ui["default-ui"]} />
+```
+
+`AiChatbot` also takes `suggestionButtonClass`, and `LanguageHeader` takes `headerClass`, both the
+same way.
+
+## Hamburgers
+
+`HamburgerBase` takes a whole module rather than one class, through `cssModule`, because a hamburger
+animation is several coordinated rules:
+
+```svelte
+<script>
+  import { spin_hamburger } from "@skywalklab/lib/css-modules";
+  import { HamburgerBase } from "@skywalklab/lib/components/nav";
+</script>
+
+<HamburgerBase type="spin" cssModule={spin_hamburger} />
+```
+
+There are 26 variants — `spin`, `elastic`, `collapse`, `squeeze`, `vortex`, `arrow`, `emphatic`,
+`spring`, `stand`, `slider`, `minus`, `boring`, the `3d` family, and a `reverse` of most, each
+exported as `<name>_hamburger`. The `type` prop and the module have to name the same one.
+
+## Theming
+
+Each module reads its colors from CSS variables with fallbacks, documented in a comment at the top
+of the file. `default-ui.module.css` begins:
+
+```css
+/**
+ * default_ui (.default-ui)
+ *
+ * --default-ui-color     Text and border color. Swaps with the background on hover.  (#fff)
+ * --default-ui-bg-color  Background color. Swaps with the text color on hover.       (var(--primary, black))
+ */
+```
+
+Set those anywhere above the component and every instance under it follows:
+
+```css
+:root {
+  --default-ui-bg-color: #0f1922;
+  --default-ui-color: #fff;
+}
+```
+
+Nothing has to be defined — each variable falls back, and most fall back to a theme variable before
+reaching a literal.
+
+## In custom elements
+
+An element adopts the modules it needs into its shadow root automatically, including one named by a
+class prop. Pass the class the same way, as an attribute:
+
+```html
+<skywalk-rolladex sw-button-class="sw_dot-indicator-ui"></skywalk-rolladex>
+```
+
+The `sw_` prefix is what `generateScopedName` produced at build time, so the name is not the one you
+import in Svelte. Each element's `Custom Element` story prints its markup with the real names filled
+in, which is the reliable place to copy from.

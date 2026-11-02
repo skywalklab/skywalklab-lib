@@ -1,0 +1,33 @@
+/**
+ * line_ui (.line-ui)
+ *
+ * --line-ui-width-min  Min width of the line that preceeds the text.  (32px)
+ * --line-ui-width-max  Max width of the line that preceeds the text.  (64px)
+ */
+
+.line-ui {
+  display: flex;
+  align-items: center;
+
+  &::before {
+    content: "";
+    height: 1px;
+    width: var(--line-ui-width-min, 32px);
+    background-color: currentColor;
+    transition: width 0.15s linear;
+    margin-right: 0.75rem;
+  }
+
+  &:hover,
+  &:focus-visible {
+    &::before {
+      width: var(--line-ui-width-max, calc(var(--line-ui-width-min, 32px) * 2));
+    }
+  }
+
+  &:active {
+    &::before {
+      width: calc(var(--line-ui-width-max, calc(var(--line-ui-width-min, 32px) * 2)) * 0.9);
+    }
+  }
+}

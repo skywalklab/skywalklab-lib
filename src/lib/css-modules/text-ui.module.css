@@ -1,0 +1,16 @@
+/**
+ * text_ui (.text-ui)
+ *
+ * --text-ui-color        Text color.           (currentColor)
+ * --text-ui-hover-color  Text color on hover.  (var(--accent-dark), slategray)
+ */
+
+.text-ui {
+  color: var(--text-ui-color, currentColor);
+  transition: color 0.15s linear;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text-ui-hover-color, var(--accent-dark, slategray));
+  }
+}

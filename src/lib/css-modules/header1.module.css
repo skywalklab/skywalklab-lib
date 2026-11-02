@@ -1,0 +1,133 @@
+/**
+ * header1 Styles
+ *
+ *
+ * --background             Header and mobile nav-panel background color. (white)
+ * --dynamic-header-height  Header height.                                (56px)
+ * --max-page-width         Max width of the inner .nav.                  (1200px)
+ * --slide-timing-function  Easing for the show/hide transition.          (ease)
+ * --primary                Nav link color, and its background on hover.  (black)
+ */
+
+:where(header.header1) {
+  background-color: var(--background, white);
+  border-bottom: 1px solid #2e405778;
+  height: var(--dynamic-header-height, 56px);
+  z-index: 200;
+  width: 100%;
+  border-bottom: none;
+  box-shadow:
+    0 0 10px rgba(0, 0, 0.15, 0.01),
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 4px 20px rgba(0, 0, 0, 0.05);
+  top: 0;
+  left: 0;
+  transition:
+    background-color 0.3s var(--slide-timing-function, ease),
+    color 0.3s var(--slide-timing-function, ease),
+    box-shadow 0.3s var(--slide-timing-function, ease);
+  position: fixed;
+  display: flex;
+  align-items: center;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: all 0.75s var(--slide-timing-function, ease);
+  }
+
+  &.show {
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  .nav {
+    width: 100%;
+    max-width: var(--max-page-width, 1200px);
+    height: inherit;
+    margin: 0 auto;
+    padding: 0 clamp(8px, 2vw, 1.5rem);
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    .nav-items {
+      min-width: fit-content;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: nowrap;
+      margin: 0;
+      padding: 1.5rem 1rem;
+      list-style: none;
+      background-color: inherit;
+      flex-direction: column;
+      align-items: flex-start;
+      position: absolute;
+      width: 100%;
+      height: fit-content;
+      top: var(--dynamic-header-height, 56px);
+      left: 0;
+      background-color: var(--background, white);
+
+      &.float {
+        width: fit-content;
+        border-radius: 10px;
+        top: calc(var(--dynamic-header-height, 56px) + 0.5rem);
+        left: unset;
+        right: 16px;
+      }
+
+      @media (min-width: 1024px) {
+        padding: 1.5rem 2rem;
+        background-color: unset;
+      }
+
+      li {
+        height: 100%;
+        align-content: center;
+        width: 100%;
+
+        a {
+          width: 100%;
+          height: 100%;
+          display: inline-block;
+          align-content: center;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        flex-direction: row;
+        align-items: center;
+        position: static;
+        width: unset;
+        height: 100%;
+        padding: 0;
+
+        li a {
+          width: fit-content;
+        }
+      }
+
+      .nav-item-link {
+        color: var(--primary, black);
+        text-decoration: none;
+        height: fit-content;
+        padding: 6px 12px;
+        border-radius: 4px;
+        line-height: 24px;
+        display: inline-block;
+        transition: all ease 0.15s;
+
+        @media (prefers-reduced-motion: reduce) {
+          transition: all ease 0.75s;
+        }
+
+        &:hover {
+          background-color: var(--primary, black);
+          color: #ffffff;
+        }
+      }
+    }
+  }
+}

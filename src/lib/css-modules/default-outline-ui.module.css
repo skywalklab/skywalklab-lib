@@ -1,0 +1,64 @@
+/**
+ * default_outline_ui (.default-outline-ui)
+ *
+ * --default-outline-ui-color           Text and border color. Swaps with the background on hover, focus and active.  (var(--primary, black))
+ * --default-outline-ui-bg-color        Background color. Swaps with the text color on hover, focus and active.       (#fff)
+ * --default-outline-ui-disabled-color  Text and border color while disabled.                                        (var(--accent-dark, slategray))
+ */
+
+.default-outline-ui {
+  border: 1px solid var(--default-outline-ui-color, var(--primary, black));
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 1rem;
+  line-height: 24px;
+  color: var(--default-outline-ui-color, var(--primary, black));
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 8px;
+  background-color: var(--default-outline-ui-bg-color, #fff);
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+  width: fit-content;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition:
+      color 0.75s ease-in-out,
+      background-color 0.75s ease-in-out,
+      border-color 0.75s ease-in-out,
+      box-shadow 0.75s ease-in-out;
+  }
+
+  &:hover,
+  &:focus-visible,
+  &:active {
+    color: var(--default-outline-ui-bg-color, #fff) !important;
+    background-color: var(--default-outline-ui-color, var(--primary, black)) !important;
+    border-color: var(--default-outline-ui-color, var(--primary, black));
+  }
+
+  &:active {
+    transform: scale(0.99);
+    transition: none;
+  }
+
+  &:focus-visible {
+    outline: 0;
+    box-shadow: rgba(13, 110, 253, 0.5) 0px 0px 0px 4px;
+  }
+
+  &:disabled {
+    pointer-events: none;
+    background-color: var(--default-outline-ui-bg-color, #fff);
+    border-color: var(--default-outline-ui-disabled-color, var(--accent-dark, slategray));
+    color: var(--default-outline-ui-disabled-color, var(--accent-dark, slategray));
+    opacity: 0.65;
+    cursor: default;
+  }
+}

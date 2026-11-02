@@ -1,0 +1,200 @@
+/* Shared with the custom elements, which adopt this file into their shadow root. */
+@import "./component-internals.css";
+
+/*
+  Styles for the example snippets in *-snippets.svelte.
+
+  Imported by both the (examples) layout and .storybook/preview.ts so the
+  snippets look the same in the showcase site and in Storybook.
+
+  Page chrome (main / section / article / h1) stays in the layout: Storybook
+  renders each story on its own, without that wrapper.
+
+  Two groups, in order:
+    1. Snippet content — markup written in src/lib/default-props/*.svelte and
+       passed into a component. These classes exist nowhere else.
+    2. Component internals — overrides reaching into a component's own markup,
+       scoped by its .<component>-story-example wrapper where it needs to be.
+*/
+
+:root {
+  --primary: #0f1922;
+  --primary-analogous-1: #0f0f22;
+  --primary-analogous-2: #0f2221;
+  --primary-light: #273038;
+  --primary-subtle: #575e64;
+  --secondary: #f5f5f5;
+  --accent: #85c1e9;
+  --accent-analogous-1: #858fe9;
+  --accent-analogous-2: #85e9df;
+  --accent-dark: #436175;
+  --accent-dark-analogous-1: #434875;
+  --accent-dark-analogous-2: #437570;
+  --background: var(--secondary);
+  --primary-dark: #000000;
+  --error: oklch(from var(--accent) calc(l - 0.1) calc(c * 2) 25);
+  --full-width-min: clamp(284px, 90vw, 800px);
+  --full-width-max: clamp(284px, 90vw, 800px);
+
+  @media (min-width: 768px) {
+    --full-width-min: 800px;
+    --full-width-max: 1100px;
+  }
+}
+
+body {
+  height: 100svh;
+  width: 100vw;
+}
+/* ---------------------------------------------------------------- */
+/* 1. Snippet content                                               */
+/* ---------------------------------------------------------------- */
+:where(.docs-story, #storybook-root, .layout-container) {
+  /* Headings inside an example, wherever a snippet or story puts them. */
+  h2 {
+    font-size: clamp(30px, 5vw, 36px);
+  }
+
+  /* animations.svelte */
+  .component-subheading {
+    font-size: clamp(26px, 4vw, 32px);
+  }
+
+  /* banners.svelte — ctaSnippet */
+  .staircase-banner-story-example {
+    .cta-btn-container {
+      margin: 2rem 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+    }
+
+    .cta-btn-container .cta-btn {
+      --default-ui-color: #ffffff;
+      --default-ui-bg-color: var(--primary);
+      --default-ui-disabled-color: color-mix(in srgb, var(--primary), #fff 30%);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .cta-btn-container .cta-btn svg {
+      font-size: 20px;
+      vertical-align: bottom;
+      color: inherit;
+      transition: inherit;
+    }
+  }
+
+  /* banners.svelte — copyrightSnippet */
+  .copyright-banner-1-story-example {
+    .copyright .copyright--text {
+      border-bottom: 1px solid transparent;
+      color: #6f6f6f;
+    }
+
+    .copyright .copyright--link {
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s linear;
+      cursor: pointer;
+    }
+
+    .copyright .copyright--link:hover {
+      border-color: currentColor;
+    }
+  }
+
+  /* cards.svelte — InfoCard1 children */
+  .info-card-1-story-example {
+    .square-check-list--highlighted-text {
+      font-weight: 700;
+    }
+  }
+
+  .lightbox-overlay-story-example {
+    min-height: calc(100svh - 2rem);
+    width: var(--full-width-max);
+    max-width: 100%;
+  }
+
+  /* nav.svelte — LanguageHeader ctaSnippet */
+  .language-header-story-example {
+    li.vertical-line {
+      color: grey;
+      display: none;
+      align-items: center;
+      height: 100%;
+      padding: 0 8px;
+    }
+
+    @media (min-width: 1024px) {
+      li.vertical-line {
+        display: flex;
+      }
+    }
+  }
+
+  /* nav.svelte — AsideNav1 detail panel beside the nav */
+  .aside-nav-1-story-example {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 2rem;
+
+    .aside-nav-1-example--detail {
+      flex: 2;
+      min-width: 260px;
+    }
+
+    .aside-nav-1-example--detail h2 {
+      margin: 0 0 1rem;
+      font-size: 29px;
+      text-transform: uppercase;
+    }
+
+    .aside-nav-1-example--detail p {
+      margin: 0;
+      line-height: 1.6;
+    }
+  }
+
+  /* heros.svelte — SlideshowCard ctaSnippet */
+  .slideshow-card--link {
+    --default-ui-bg-color: transparent;
+    text-transform: uppercase;
+    font-size: 16px;
+    padding: 17px 24px 16px;
+    border-radius: 999px;
+  }
+
+  .slideshow-card--link:hover {
+    --default-ui-color: var(--primary, black);
+    --default-ui-bg-color: #fff;
+    border-color: var(--primary, black);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* 2. Component internals                                           */
+/* ---------------------------------------------------------------- */
+
+:where(.docs-story, #storybook-root, .layout-container) {
+  .language-header-story-example ul:first-child > li > :first-child {
+    text-transform: uppercase;
+  }
+
+  .aside-nav-1 .aside-nav-button {
+    --default-outline-ui-color: #000;
+    --default-outline-ui-bg-color: #f5f5f5;
+  }
+
+  .grid--button {
+    --default-ui-bg-color: transparent;
+  }
+
+  .grid--button:hover {
+    --default-ui-color: var(--primary, black);
+    --default-ui-bg-color: #fff;
+  }
+}
