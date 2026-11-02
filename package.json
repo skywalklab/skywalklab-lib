@@ -3,8 +3,13 @@
   "description": "A Svelte 5 component library for SkywalkLab sites, plus the actions, utilities, CSS modules and Vite plugins they depend on.",
   "author": "SkywalkLab",
   "homepage": "https://lab.skywalklab.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skywalklab/skywalklab-lib.git"
+  },
+  "bugs": "https://github.com/skywalklab/skywalklab-lib/issues",
   "license": "MIT",
-  "version": "0.8.508",
+  "version": "0.8.509",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
