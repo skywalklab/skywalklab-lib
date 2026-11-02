@@ -5,7 +5,7 @@ plus the actions, utilities, CSS modules and Vite plugins they depend on.
 
 Built on Svelte 5 runes and snippets, packaged with `svelte-package`.
 
-## 21 of 1,736 icons
+## Lucide icons: only the ones you use
 
 Icon names are strings, so a bundler can't see which ones you use:
 

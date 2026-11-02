@@ -18,7 +18,7 @@ fs.mkdirSync(out, { recursive: true });
 for (const entry of fs.readdirSync(out)) {
   if (entry !== ".git") fs.rmSync(path.join(out, entry), { recursive: true, force: true });
 }
-execFileSync("sh", ["-c", `git archive --format=tar "HEAD:${libFolder}" | tar -x -C "$OUT"`], {
+execFileSync("sh", ["-c", `git archive --format=tar "HEAD:${libFolder}" -- . ':!static' | tar -x -C "$OUT"`], {
   cwd: root,
   env: { ...process.env, OUT: out },
   stdio: "inherit"
