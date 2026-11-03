@@ -93,12 +93,11 @@
     &::before {
       content: "";
       width: var(--top-bar-slide-width);
-      height: calc(100% - (var(--top-bar-slide-padding) * 2));
+      height: var(--top-bar-slide-height);
       top: 0;
       bottom: 0;
       left: 0;
-      transform: translateX(var(--top-bar-slide-offset-x));
-      margin: auto 0;
+      transform: translate(var(--top-bar-slide-offset-x), var(--top-bar-slide-offset-y));
       position: absolute;
       background-color: var(--top-bar-slide-active-bg-color);
       border-radius: 8px;
