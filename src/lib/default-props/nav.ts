@@ -144,6 +144,8 @@ export const nav_static_props = new Map<string, any>([
       storyDescription: component_descriptions.nav.get("TimelineNav"),
       props: {
         items: testSlides.map(({ title, description }) => ({ text: title, description })),
+        activeItemIndex: 0,
+        transitionTiming: 1,
         style: "width: var(--full-width-min);"
       }
     }

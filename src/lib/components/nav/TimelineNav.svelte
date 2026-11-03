@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
+  import { untrack, type Snippet } from "svelte";
   import { snippetWrap } from "../../utils/snippets.js";
   import { slide, type SlideParams } from "svelte/transition";
 
@@ -7,7 +7,9 @@
     /** Steps in the timeline, each passed to `buttonSnippet` and `itemSnippet`. */
     items: any[];
     /** Index of the open step, or -1 for none; bindable so a parent can track or set which step is open. */
-    openItemIndex?: number;
+    activeItemIndex?: number;
+    /** Seconds for each step of the line and marker transitions, and for the dropdown slide. */
+    transitionTiming?: number;
     /** Called when the list item is clicked. */
     onclick?: (index: number) => void;
     /** Renders inside every step's button; `item` is that step and `index` its position in `items`. */
@@ -18,11 +20,36 @@
     style?: string;
   }
 
-  let { items, openItemIndex = $bindable(-1), onclick, buttonSnippet, itemSnippet, style }: Props = $props();
+  let {
+    items,
+    activeItemIndex = $bindable(-1),
+    transitionTiming = 1,
+    onclick,
+    buttonSnippet,
+    itemSnippet,
+    style
+  }: Props = $props();
   let uid: string = $props.id();
 
-  let activeItemIndex = $state<number>(openItemIndex);
   const deferredSlide = (node: Element, params: SlideParams) => () => slide(node, params);
+
+  let fromIndex = $state(activeItemIndex);
+  let toIndex = $state(activeItemIndex);
+  $effect.pre(() => {
+    const next = activeItemIndex;
+    untrack(() => {
+      if (next === toIndex) return;
+      fromIndex = toIndex;
+      toIndex = next;
+    });
+  });
+
+  const transitionDelay = (i: number): number => {
+    const step = toIndex > fromIndex ? i - fromIndex - 1 : fromIndex - i;
+    const delay = Math.max(step, 0) * (transitionTiming / items.length);
+
+    return delay;
+  };
 </script>
 
 <div
@@ -30,22 +57,29 @@
   class="timeline-nav"
   style:--timeline-nav-active-items={activeItemIndex + 1}
   style:--timeline-nav-total-items={items.length}
+  style:--timeline-nav-timing-duration={transitionTiming / items.length + "s"}
   {style}>
   <ul class="timeline-nav--list">
     {#each items as item, i (i)}
-      <li class="timeline-nav--list-item" class:active={i <= activeItemIndex} class:active-now={i === activeItemIndex}>
+      <li
+        class="timeline-nav--list-item"
+        class:active={i <= activeItemIndex}
+        class:active-open={i === activeItemIndex}
+        style:--timeline-nav-item-transition-delay={transitionDelay(i) + "s"}>
         <button
           class="timeline-nav--button"
           onclick={() => {
-            openItemIndex = openItemIndex === i ? -1 : i;
-            activeItemIndex = i;
-            // activeItemIndex = openItemIndex;
+            activeItemIndex = activeItemIndex === i ? -1 : i;
+
             onclick?.(i);
           }}>
           {@render snippetWrap(buttonSnippet)?.({ item, index: i })}
         </button>
-        {#if openItemIndex === i}
-          <div class="timeline-nav--dropdown" in:deferredSlide={{ duration: 150 }}>
+        {#if activeItemIndex === i}
+          <div
+            class="timeline-nav--dropdown"
+            in:deferredSlide={{ duration: 300 }}
+            out:deferredSlide={{ duration: transitionDelay(i) * 1000 }}>
             {@render snippetWrap(itemSnippet)?.({ item, index: i })}
           </div>
         {/if}
@@ -68,36 +102,20 @@
       display: flex;
       flex-direction: column;
 
-      &:before {
-        content: "";
-        position: absolute;
-        z-index: 3;
-        top: var(--timeline-nav-marker-diameter);
-        left: calc(var(--timeline-nav-marker-diameter) / 2);
-        height: calc(var(--timeline-nav-min-item-height) * var(--timeline-nav-active-items));
-        max-height: calc(var(--timeline-nav-min-item-height) * (var(--timeline-nav-total-items) - 1));
-        width: var(--timeline-nav-line-width);
-        background-color: currentColor;
-        transition: height 0.3s linear;
-      }
-
       .timeline-nav--list-item {
         position: relative;
         min-height: var(--timeline-nav-min-item-height);
 
         &.active {
-          --timeline-nav-line-color: currentColor;
+          &::before {
+            background-color: currentColor;
+          }
 
           &:not(:last-of-type) {
             .timeline-nav--button::before {
-              transition: height 0.15s 0.3s linear;
               height: 100%;
             }
           }
-        }
-
-        &:last-of-type:after {
-          display: none;
         }
 
         &:before,
@@ -106,17 +124,17 @@
           position: absolute;
           top: calc(var(--timeline-nav-marker-diameter) / 2);
           margin: auto 0;
-          width: var(--timeline-nav-marker-diameter);
-          height: auto;
-          transition: background-color 0.15s linear;
           background-color: var(--timeline-nav-initial-line-color);
+          transition: background-color var(--timeline-nav-timing-duration) linear;
         }
 
         &:before {
           aspect-ratio: 1 / 1;
           left: calc(var(--timeline-nav-line-width) / 2);
-          background-color: var(--timeline-nav-line-color);
+          width: var(--timeline-nav-marker-diameter);
+          height: auto;
           z-index: 4;
+          transition-delay: var(--timeline-nav-item-transition-delay);
         }
 
         &:after {
@@ -124,6 +142,10 @@
           width: var(--timeline-nav-line-width);
           height: 100%;
           z-index: 2;
+        }
+
+        &:last-of-type:after {
+          display: none;
         }
 
         .timeline-nav--button {
@@ -146,6 +168,9 @@
             width: var(--timeline-nav-line-width);
             height: 0%;
             background-color: currentColor;
+            transition: height var(--timeline-nav-timing-duration) linear;
+            transition-delay: var(--timeline-nav-item-transition-delay);
+            /* display: none; */
           }
         }
 

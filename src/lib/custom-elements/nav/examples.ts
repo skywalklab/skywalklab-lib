@@ -186,7 +186,8 @@ import "@${prefix}lab/lib/custom-elements/${prefix}-small-screen-nav.js";
     html: `
 <${prefix}-timeline-nav
   sw-items='[]'
-  sw-open-item-index="0"
+  sw-active-item-index="0"
+  sw-transition-timing="0"
   sw-style="string">
   <div slot="buttonSnippet" data-text-content="arg"></div>
   <div slot="itemSnippet" data-text-content="arg"></div>

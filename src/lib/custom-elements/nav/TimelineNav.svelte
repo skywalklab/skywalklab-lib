@@ -7,7 +7,8 @@
     },
     props: {
       items: { type: "Array", attribute: "sw-items" },
-      openItemIndex: { type: "Number", attribute: "sw-open-item-index", reflect: true },
+      activeItemIndex: { type: "Number", attribute: "sw-active-item-index", reflect: true },
+      transitionTiming: { type: "Number", attribute: "sw-transition-timing" },
       swOnclick: { type: "Object" },
       style: { type: "String", attribute: "sw-style" }
     },
@@ -39,10 +40,10 @@
 <script lang="ts">
   import TimelineNav from "../../components/nav/TimelineNav.svelte";
 
-  let { items, openItemIndex = $bindable(-1), swOnclick, style }: any = $props();
+  let { items, activeItemIndex = $bindable(-1), transitionTiming, swOnclick, style }: any = $props();
 </script>
 
-<TimelineNav {items} bind:openItemIndex={openItemIndex} onclick={swOnclick} {style} >
+<TimelineNav {items} bind:activeItemIndex={activeItemIndex} {transitionTiming} onclick={swOnclick} {style} >
   {#snippet buttonSnippet()}
     <slot name="buttonSnippet"/>
   {/snippet}
@@ -71,36 +72,20 @@
       display: flex;
       flex-direction: column;
 
-      &:before {
-        content: "";
-        position: absolute;
-        z-index: 3;
-        top: var(--timeline-nav-marker-diameter);
-        left: calc(var(--timeline-nav-marker-diameter) / 2);
-        height: calc(var(--timeline-nav-min-item-height) * var(--timeline-nav-active-items));
-        max-height: calc(var(--timeline-nav-min-item-height) * (var(--timeline-nav-total-items) - 1));
-        width: var(--timeline-nav-line-width);
-        background-color: currentColor;
-        transition: height 0.3s linear;
-      }
-
       .timeline-nav--list-item {
         position: relative;
         min-height: var(--timeline-nav-min-item-height);
 
         &.active {
-          --timeline-nav-line-color: currentColor;
+          &::before {
+            background-color: currentColor;
+          }
 
           &:not(:last-of-type) {
             .timeline-nav--button::before {
-              transition: height 0.15s 0.3s linear;
               height: 100%;
             }
           }
-        }
-
-        &:last-of-type:after {
-          display: none;
         }
 
         &:before,
@@ -109,17 +94,17 @@
           position: absolute;
           top: calc(var(--timeline-nav-marker-diameter) / 2);
           margin: auto 0;
-          width: var(--timeline-nav-marker-diameter);
-          height: auto;
-          transition: background-color 0.15s linear;
           background-color: var(--timeline-nav-initial-line-color);
+          transition: background-color var(--timeline-nav-timing-duration) linear;
         }
 
         &:before {
           aspect-ratio: 1 / 1;
           left: calc(var(--timeline-nav-line-width) / 2);
-          background-color: var(--timeline-nav-line-color);
+          width: var(--timeline-nav-marker-diameter);
+          height: auto;
           z-index: 4;
+          transition-delay: var(--timeline-nav-item-transition-delay);
         }
 
         &:after {
@@ -127,6 +112,10 @@
           width: var(--timeline-nav-line-width);
           height: 100%;
           z-index: 2;
+        }
+
+        &:last-of-type:after {
+          display: none;
         }
 
         .timeline-nav--button {
@@ -149,6 +138,9 @@
             width: var(--timeline-nav-line-width);
             height: 0%;
             background-color: currentColor;
+            transition: height var(--timeline-nav-timing-duration) linear;
+            transition-delay: var(--timeline-nav-item-transition-delay);
+            /* display: none; */
           }
         }
 
