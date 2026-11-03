@@ -35,7 +35,9 @@
 
   let wasInactive = $state<boolean>(true);
   let activeItemOffsetX = $state<number | undefined>();
+  let activeItemOffsetY = $state<number | undefined>();
   let activeItemWidth = $state<number | undefined>();
+  let activeItemHeight = $state<number | undefined>();
 </script>
 
 <div
@@ -47,7 +49,9 @@
   style:--top-bar-slide-bg-color={bgColor}
   style:--top-bar-slide-active-bg-color={activeBgColor}
   style:--top-bar-slide-offset-x={activeItemOffsetX + "px"}
+  style:--top-bar-slide-offset-y={activeItemOffsetY + "px"}
   style:--top-bar-slide-width={activeItemWidth + "px"}
+  style:--top-bar-slide-height={activeItemHeight + "px"}
   role="presentation"
   onmouseleave={() => {
     if (keepActive) return;
@@ -59,7 +63,9 @@
 
       const activeItem = node.children[activeItemIndex] as HTMLDivElement;
       activeItemOffsetX = activeItem.offsetLeft;
+      activeItemOffsetY = activeItem.offsetTop;
       activeItemWidth = activeItem.clientWidth;
+      activeItemHeight = activeItem.clientHeight;
     });
   }}
   {style}>
@@ -113,12 +119,11 @@
     &::before {
       content: "";
       width: var(--top-bar-slide-width);
-      height: calc(100% - (var(--top-bar-slide-padding) * 2));
+      height: var(--top-bar-slide-height);
       top: 0;
       bottom: 0;
       left: 0;
-      transform: translateX(var(--top-bar-slide-offset-x));
-      margin: auto 0;
+      transform: translate(var(--top-bar-slide-offset-x), var(--top-bar-slide-offset-y));
       position: absolute;
       background-color: var(--top-bar-slide-active-bg-color);
       border-radius: 8px;
