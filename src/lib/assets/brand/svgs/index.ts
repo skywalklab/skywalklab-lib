@@ -1,5 +1,10 @@
 export { default as circleLogoInverse } from "./skywalklab-circle-logo-inverse.svg";
+export { default as circleLogoInverseRaw } from "./skywalklab-circle-logo-inverse.svg?raw";
 export { default as circleLogo } from "./skywalklab-circle-logo.svg";
+export { default as circleLogoRaw } from "./skywalklab-circle-logo.svg?raw";
 export { default as logoIcon } from "./skywalklab-logo-icon.svg";
+export { default as logoIconRaw } from "./skywalklab-logo-icon.svg?raw";
 export { default as logoWhite } from "./skywalklab-logo-white.svg";
+export { default as logoWhiteRaw } from "./skywalklab-logo-white.svg?raw";
 export { default as logo } from "./skywalklab-logo.svg";
+export { default as logoRaw } from "./skywalklab-logo.svg?raw";
