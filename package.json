@@ -9,7 +9,7 @@
   },
   "bugs": "https://github.com/skywalklab/skywalklab-lib/issues",
   "license": "MIT",
-  "version": "0.8.514",
+  "version": "0.8.515",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

@@ -114,7 +114,7 @@
       justify-content: space-between;
       align-items: center;
 
-      @media (max-width: 1024px) {
+      @media (width < 1024px) {
         :global(.large-screen-nav) {
           display: none;
         }
