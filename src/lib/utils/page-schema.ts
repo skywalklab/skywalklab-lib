@@ -65,10 +65,11 @@ export const createProviderSchema = (context: {
   id: string;
   addressRegion: string;
   addressCountry: string;
+  type?: string;
 }) => {
-  const { name, id, addressRegion, addressCountry } = context;
+  const { name, id, addressRegion, addressCountry, type = "LocalBusiness" } = context;
   return {
-    "@type": "LocalBusiness",
+    "@type": type,
     name,
     "@id": id,
     address: {
